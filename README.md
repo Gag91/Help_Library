@@ -48,7 +48,7 @@ int main() {
     // Input field
     std::string name = hp::CenteredInput(14, 30, "Enter your name");
     
-    hp::wait(2); // wait 2 seconds, can use 'hp::wait_ms' for miliseconds
+    hp::wait(2); 
     return 0;
 }
 ```
@@ -83,7 +83,11 @@ int main() {
 ### Menus
 - `hp::arrowMenu(title, options)` – Arrow-key navigable menu
 - `hp::CenteredMenu(title, options)` – Centered menu
-- `hp::CenteredFieldMenu(startRow, width, options)` – Field-based menu
+- `hp::CenteredFieldMenu(startRow, width, options)` – Field-based menu + Arrow-key navigable menu
+
+### Time
+- `hp::wait(time)` - Wait in seconds
+- `hp::wait_ms(time)` - Wait in milliseconds
 
 ## Installation
 Copy the include/hp/ folder to your project and include hp/help.hpp.
