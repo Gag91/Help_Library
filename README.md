@@ -31,7 +31,7 @@ int main() {
 - **C++20+**
 
 ## Coming Soon...
-- **2D cmd Terminal Library **
+- **2D cmd Terminal Library**
 
 ## Contacts
 - Discord: xxavi640
