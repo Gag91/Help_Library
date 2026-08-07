@@ -46,11 +46,12 @@ int main() {
     hp::centeredBox(10, "Welcome to hp!", hp::MAGENTA);
     
     // Input field
-    std::string name = hp::CenteredInput(14, 30, "Enter your name"); //
+    std::string name = hp::CenteredInput(14, 30, "Enter your name");
     
-    hp::wait(2);
+    hp::wait(2); // wait 2 seconds, can use 'hp::wait_ms' for miliseconds
     return 0;
 }
+```
 
 ## Functions
 
