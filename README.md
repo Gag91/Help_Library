@@ -105,7 +105,12 @@ Check LICENSE file for details
 - **C++ compiler** (GCC, Clang, or MSVC)
 
 ## Coming Soon...
-- **2D cmd Terminal Library**
+- **2D Terminal Graphics Library** – Draw shapes, sprites(not sure), and animations(not sure) in the console
+- **GUI Elements** – Progress bars, loading spinners, tables
+- **Data Structures** – Stack, Queue, LinkedList implementations
+- **Encryption** – MD5, Base64 encoding
+- **Sounds** - Sounds effect
+- **Buttons** - Clickable buttons whit colors and sound effects
 
 ## Contacts
 - Discord: xxavi640
