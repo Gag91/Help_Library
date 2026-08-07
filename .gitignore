@@ -1,0 +1,25 @@
+# Compiled files
+*.exe
+*.out
+*.o
+*.obj
+
+# Build directories
+build/
+bin/
+dist/
+
+# IDE files
+.vscode/
+.idea/
+*.sln
+*.vcxproj
+*.user
+
+# Windows
+Thumbs.db
+desktop.ini
+
+# Temp files
+*.tmp
+*.log
