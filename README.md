@@ -92,8 +92,14 @@ int main() {
 ## Installation
 Copy the include/hp/ folder to your project and include hp/help.hpp.
 
+## How to Compile
+
+```bash
+g++ -std=c++20 -Iinclude your_file.cpp -o your_program.exe
+```
+
 ## Notes
-This was maded by me and for me to improve my c++ skills and experience
+This was made by me to improve my C++ skills and experience.
 
 ## License
 MIT License
