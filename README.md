@@ -23,7 +23,8 @@ int main() {
     hp::printCl("Hello, World!", hp::GREEN);
     hp::wait(1);
     return 0;
-}```
+}
+```
 
 ## Requirements
 - **Windows**
