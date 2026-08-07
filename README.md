@@ -26,9 +26,78 @@ int main() {
 }
 ```
 
+## Demo
+
+```cpp
+#include "hp/help.hpp"
+
+int main() {
+    hp::cls(); // Clear terminal
+    
+    // Colored text
+    hp::printCl("Hello, World!", hp::GREEN);
+    hp::printlnCl("This is a test", hp::CYAN);
+    
+    // Random number
+    int num = hp::Random::rand(1, 100);
+    hp::printlnCl("Random number: " + std::to_string(num), hp::YELLOW);
+    
+    // Centered box
+    hp::centeredBox(10, "Welcome to hp!", hp::MAGENTA);
+    
+    // Input field
+    std::string name = hp::CenteredInput(14, 30, "Enter your name"); //
+    
+    hp::wait(2);
+    return 0;
+}
+
+## Functions
+
+### Colors
+- `hp::printCl(msg, color)` – Print colored text
+- `hp::printlnCl(msg, color)` – Print colored text with newline
+- `hp::getColorCode(color)` – Get ANSI color code
+
+### Input
+- `hp::inputField(row, col, width, placeholder)` – Input field
+- `hp::CenteredInput(row, width, msg)` – Centered input field
+- `hp::inputInt()`, `hp::inputFloat()`, `hp::inputAlpha()`, `hp::inputAlphaNum()`
+
+### Keyboard
+- `hp::updateKeyboard()` – Update keyboard states
+- `hp::KeyIsPressed::Key` – Check if key was pressed
+- `hp::KeyIsHold::Key` – Check if key is held
+
+### Random
+- `hp::Random::rand(min, max)` – Random number
+- `hp::Random::choice(vector)` – Random item from vector
+- `hp::Random::shuffle(vector)` – Shuffle vector
+
+### Math
+- `hp::add(a, b)` – Add two numbers
+- `hp::calc<T>("5+3")` – Calculate expression
+- `hp::calcAdvanced<T>("5+3*2")` – Advanced calculation
+
+### Menus
+- `hp::arrowMenu(title, options)` – Arrow-key navigable menu
+- `hp::CenteredMenu(title, options)` – Centered menu
+- `hp::CenteredFieldMenu(startRow, width, options)` – Field-based menu
+
+## Installation
+Copy the include/hp/ folder to your project and include hp/help.hpp.
+
+## Notes
+This was maded by me and for me to improve my c++ skills and experience
+
+## License
+MIT License
+Check LICENSE file for details
+
 ## Requirements
-- **Windows**
-- **C++20**
+- **Windows** (uses Windows API for keyboard input)
+- **C++20** or later (uses concepts, ranges, fold expressions)
+- **C++ compiler** (GCC, Clang, or MSVC)
 
 ## Coming Soon...
 - **2D cmd Terminal Library**
