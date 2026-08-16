@@ -19,7 +19,7 @@ namespace hp {
         CONSOLE_SCREEN_BUFFER_INFO csbi;
         GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE), &csbi);
         int consoleWidth = csbi.srWindow.Right - csbi.srWindow.Left + 1;
-        int col = ((consoleWidth - msg.length()) + 4) / 2;
+        int col = ((consoleWidth - msg.length())) / 2;
         std::cout << "\033[" << row << ";" << col << "H";
         std::cout << msg;
         std::cout.flush();

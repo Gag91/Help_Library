@@ -5,6 +5,7 @@
 #include "hp/flows/overflow.hpp"
 #include "hp/flows/underflow.hpp"
 #include <iostream>
+#include <ranges>
 
 namespace hp {
 
@@ -39,30 +40,30 @@ namespace hp {
     template <typename T, typename U = T>
     concept Addable =
         requires(T t, U u) {
-                { t + u } -> std::convertible_to<decltype(t + u)>;
-                { hp::overflow::check::Add(t, u) } -> std::convertible_to<bool>;
+        t + u;
+        { hp::overflow::check::Add(t, u) } -> std::convertible_to<bool>;
         };
 
     // ----- Subtraction
     template <typename T, typename U = T>
     concept Substractable =
         requires(T t, U u) {
-                { t - u } -> std::convertible_to<decltype(t - u)>;
-                { hp::underflow::check::Sub(t, u) } -> std::convertible_to<bool>;
+        t - u;
+        { hp::underflow::check::Sub(t, u) } -> std::convertible_to<bool>;
         };
 
     // ----- Multiplication
     template <typename T, typename U = T>
     concept Multipliable = requires(T t, U u) {
-            { t* u } -> std::convertible_to<decltype(t* u)>;
-            { hp::overflow::check::Mult(t, u) } -> std::convertible_to<bool>;
+        t* u;
+        { hp::overflow::check::Mult(t, u) } -> std::convertible_to<bool>;
         };
 
     // ----- Division
     template <typename T, typename U = T>
     concept Divisible = requires(T t, U u) {
-            { t / u } -> std::convertible_to<decltype(t / u)>;
-            { hp::overflow::check::Div(t, u) } -> std::convertible_to<bool>;
+        t / u;
+        { hp::overflow::check::Div(t, u) } -> std::convertible_to<bool>;
         };
 
     // ----- Modulo (only for integral types)
@@ -70,7 +71,6 @@ namespace hp {
     concept Moduloable = requires(T t, U u) {
         requires std::integral<T>;
         requires std::integral<U>;
-    { t% u } -> std::convertible_to<decltype(t% u)>;
     { hp::overflow::check::Div(t, u) } -> std::convertible_to<bool>;
         };
 
