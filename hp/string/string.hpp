@@ -5,6 +5,67 @@
 
 namespace hp {
 
+    namespace str {
+
+        // ----- String to upper
+        [[nodiscard]] std::string to_upper(std::string_view str) {
+            std::string result;
+            result.reserve(str.size());
+            for (char c : str) {
+                result.push_back(std::toupper(c));
+                }
+            return result;
+            }
+
+        // ----- String to lower
+        [[nodiscard]] std::string to_lower(std::string_view str) {
+            std::string result;
+            result.reserve(str.size());
+            for (char c : str) {
+                result.push_back(std::tolower(c));
+                }
+            return result;
+            }
+
+        namespace trim {
+
+            // ----- White spaces
+            [[nodiscard]] std::string white_spaces(std::string_view str) {
+                std::string result;
+                result.reserve(str.size());
+                for (char c : str) {
+                    if (!c == ' ') {
+                        result += c;
+                        }
+                    }
+                return result;
+                }
+
+            // ----- Numbers
+            [[nodiscard]] std::string numbers(std::string_view str) {
+                std::string result;
+                result.reserve(str.size());
+                for (char c : str) {
+                    if (std::isdigit(static_cast<unsigned char>(c))) {
+                        result += c;
+                        }
+                    }
+                return result;
+                }
+
+            // ----- Letters
+            [[nodiscard]] std::string letters(std::string_view str) {
+                std::string result;
+                result.reserve(str.size());
+                for (char c : str) {
+                    if (std::isdigit(static_cast<unsigned char>(c))) {
+                        result += c;
+                        }
+                    }
+                return result;
+                }
+            }
+        }
     // ----- Regular title function
     inline void title(const std::string& t, int w = 40) {
         std::string sep = std::string(w, '=');
@@ -60,5 +121,6 @@ namespace hp {
     bool ends_with(const std::string& str, const std::string& suffix) {
         return str.ends_with(suffix);
         }
+
 
     }

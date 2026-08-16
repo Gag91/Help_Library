@@ -73,7 +73,6 @@ namespace hp {
                     return false;
                     }
                 else if constexpr (std::is_floating_point_v<T>) {
-                    // Floating point underflow
                     if (a != 0 && b != 0) {
                         return std::abs(a) < std::numeric_limits<T>::min() / std::abs(b);
                         }
@@ -83,7 +82,7 @@ namespace hp {
 
             // ----- Check Division (division by zero)
             template <typename T>
-            constexpr bool Div(T a, T b) {
+            constexpr bool Division_Zero(T a, T b) {
                 static_assert(std::is_arithmetic_v<T>,
                     "hp::underflow::check::Div: T must be arithmetic!");
 
@@ -92,10 +91,13 @@ namespace hp {
 
             // ----- Check Division Overflow (INT_MIN / -1)
             template <typename T>
-            constexpr bool DivOverflow(T a, T b) {
+            constexpr bool Div(T a, T b) {
                 static_assert(std::is_arithmetic_v<T>,
                     "hp::underflow::check::DivOverflow: T must be arithmetic!");
 
+                if (hp::underflow::Division_Zero(a, b)) {
+                    return true;
+                    }
                 if constexpr (std::is_integral_v<T>) {
                     if (a == std::numeric_limits<T>::min() && b == -1) {
                         return true;

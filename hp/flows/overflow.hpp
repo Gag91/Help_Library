@@ -50,13 +50,10 @@ namespace hp {
                 if (a == 0 || b == 0) return false;
 
                 if constexpr (std::is_integral_v<T>) {
-                    // Positive × Positive
                     if (a > 0 && b > 0) {
                         return a > std::numeric_limits<T>::max() / b;
                         }
-                    // Negative × Negative (product positive)
                     if (a < 0 && b < 0) {
-                        // Protect against INT_MIN
                         if (a == std::numeric_limits<T>::min() ||
                             b == std::numeric_limits<T>::min()) {
                             return true;
@@ -65,8 +62,6 @@ namespace hp {
                         T posB = -b;
                         return posA > std::numeric_limits<T>::max() / posB;
                         }
-                    // Positive × Negative (product negative - can't overflow positive max)
-                    // Negative × Positive (product negative - can't overflow positive max)
                     return false;
                     }
                 else if constexpr (std::is_floating_point_v<T>) {
@@ -79,19 +74,21 @@ namespace hp {
 
             // ----- Check Division (division by zero)
             template <typename T>
-            constexpr bool Div(T a, T b) {
+            constexpr bool Division_Zero(T a, T b) {
                 static_assert(std::is_arithmetic_v<T>,
                     "hp::overflow::check::Div: T must be arithmetic!");
 
                 return b == 0;
                 }
 
-            // ----- Check Division Overflow (INT_MIN / -1)
+            // ----- Check Division Overflow
             template <typename T>
-            constexpr bool DivOverflow(T a, T b) {
+            constexpr bool Div(T a, T b) {
                 static_assert(std::is_arithmetic_v<T>,
-                    "hp::overflow::check::DivOverflow: T must be arithmetic!");
-
+                    "hp::overflow::check::Div: T must be arithmetic!");
+                if (hp::overflow::Division_Zero(a, b)) {
+                    return true;
+                    }
                 if constexpr (std::is_integral_v<T>) {
                     if (a == std::numeric_limits<T>::min() && b == -1) {
                         return true;
@@ -121,10 +118,6 @@ namespace hp {
 
             return !any(a, b);
             }
-
-        // ============================================
-        // MULTI-ARGUMENT CHECKS
-        // ============================================
 
         namespace make {
 

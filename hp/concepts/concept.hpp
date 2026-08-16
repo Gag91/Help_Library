@@ -4,6 +4,7 @@
 #include <type_traits>
 #include "hp/flows/overflow.hpp"
 #include "hp/flows/underflow.hpp"
+#include <iostream>
 
 namespace hp {
 
