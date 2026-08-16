@@ -14,12 +14,11 @@
 namespace hp {
 
     // ----- Centered Box | Use of Windows API | Use of ANSCII color from hp/colors/color.hpp | Use of ASCII Border style from hp/borderStyle/border.hpp
-    inline void centeredBox(int row, const std::string& msg, hp::Color color = hp::WHITE, BorderStyle style = EXTENDED) {
+    inline void centeredBox(int row, int width, const std::string& msg, hp::Color color = hp::WHITE, BorderStyle style = EXTENDED) {
         CONSOLE_SCREEN_BUFFER_INFO csbi;
         GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE), &csbi);
         int consoleWidth = csbi.srWindow.Right - csbi.srWindow.Left + 1;
-        int boxWidth = msg.length() + 4;
-        int col = (consoleWidth - boxWidth) / 2;
+        int col = (consoleWidth - width) / 2;
         std::string tl, tr, bl, br, sep, hChar, vChar;
         switch (style) {
             case ASCII:
@@ -36,11 +35,11 @@ namespace hp {
                 break;
             }
         std::cout << "\033[" << row << ";" << col << "H";
-        std::cout << tl << repeatString(hChar, boxWidth) << tr;
+        std::cout << tl << repeatString(hChar, width) << tr;
         std::cout << "\033[" << (row + 1) << ";" << col << "H";
-        std::cout << vChar << getColorCode(color) << msg << getColorCode(RESET) << std::string((boxWidth - msg.size()), ' ') << vChar;
+        std::cout << vChar << getColorCode(color) << msg << getColorCode(RESET) << std::string((width - msg.size()), ' ') << vChar;
         std::cout << "\033[" << (row + 2) << ";" << col << "H";
-        std::cout << bl << repeatString(hChar, boxWidth) << br;
+        std::cout << bl << repeatString(hChar, width) << br;
         }
 
     inline std::string CenteredInput(int row, int width, const std::string& msg, std::string allowed = "", hp::Color color = hp::WHITE, int lenght = -1, BorderStyle style = EXTENDED) {

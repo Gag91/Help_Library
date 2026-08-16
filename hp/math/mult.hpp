@@ -3,12 +3,26 @@
 #include <string>
 #include <sstream>
 #include <stdexcept>
+#include "hp/other/overflow.hpp"
+#include "hp/other/underflow.hpp"
 
 namespace hp {
 
     // ----- Simple mult for two arguments
     template <typename T>
     [[nodiscard]] T mult(T a, T b) {
+        if (hp::overflow::check::Mult(a, b)) {
+            throw std::overflow_error(
+                std::string("Overflow  in ") + __FUNCTION__ +
+                " inside " + __FILE__ + " at line: " +
+                std::to_string(__LINE__));
+            }
+        else if (hp::underflow::check::Mult(a, b)) {
+            throw std::underflow_error(
+                std::string("Underflow  in ") + __FUNCTION__ +
+                " inside " + __FILE__ + " at line: " +
+                std::to_string(__LINE__));
+            }
         return a * b;
         }
 
@@ -18,6 +32,18 @@ namespace hp {
         static_assert((std::is_arithmetic_v<T> && ...),
             "All arguments must be numbers!");
         if (((args != 0) && ...)) {
+            if (hp::overflow::make::Mult(args...)) {
+                throw std::overflow_error(
+                    std::string("Overflow  in ") + __FUNCTION__ +
+                    " inside " + __FILE__ + " at line: " +
+                    std::to_string(__LINE__));
+                }
+            else if (hp::underflow::make::Mult(args...)) {
+                throw std::underflow_error(
+                    std::string("Underflow  in ") + __FUNCTION__ +
+                    " inside " + __FILE__ + " at line: " +
+                    std::to_string(__LINE__));
+                }
             return (args * ...);
             }
         else {
@@ -38,7 +64,20 @@ namespace hp {
         T next;
         while (ss >> op >> next) {
             switch (op) {
-                case '*': result *= next; break;
+                case '*':
+                    if (hp::overflow::check::Mult(result, next)) {
+                        throw std::overflow_error(
+                            std::string("Overflow  in ") + __FUNCTION__ +
+                            " inside " + __FILE__ + " at line: " +
+                            std::to_string(__LINE__));
+                        }
+                    else if (hp::underflow::check::Mult(result, next)) {
+                        throw std::underflow_error(
+                            std::string("Underflow  in ") + __FUNCTION__ +
+                            " inside " + __FILE__ + " at line: " +
+                            std::to_string(__LINE__));
+                        }
+                    result *= next; break;
                 default:
                     throw std::runtime_error("Only '*' supported in hp::mult");
                 }

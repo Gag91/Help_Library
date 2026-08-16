@@ -152,6 +152,14 @@ namespace hp {
             }
         }
 
+    void setCenter(int row, int width) {
+        CONSOLE_SCREEN_BUFFER_INFO csbi;
+        GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE), &csbi);
+        int consoleWidth = csbi.srWindow.Right - csbi.srWindow.Left + 1;
+        int col = (consoleWidth - width) / 2;
+        std::cout << "\033[" << row << ";" << col << "H";
+        }
+
     void enableUTF8() {
 #ifdef _WIN32
         SetConsoleOutputCP(CP_UTF8);

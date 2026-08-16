@@ -91,4 +91,74 @@ namespace hp {
         (vec.push_back(rest), ...);
         }
 
+        // ----- Filter (keeps elements that satisfy predicate)
+    template<std::ranges::range Container, typename Predicate>
+    constexpr auto filter(const Container& container, Predicate pred) {
+        using valueType = std::ranges::range_value_t<Container>;
+        std::vector<valueType> result;
+        for (const auto& elem : container) {
+            if (pred(elem)) {
+                result.push_back(elem);
+                }
+            }
+        return result;
+        }
+
+    // ----- All elements satisfy predicate
+    template<std::ranges::range Container, typename Predicate>
+    bool allOf(const Container& container, Predicate pred) {
+        for (const auto& elem : container) {
+            if (!pred(elem)) {
+                return false;
+                }
+            }
+        return true;
+        }
+
+    // ----- Any element satisfies predicate
+    template<std::ranges::range Container, typename Predicate>
+    bool anyOf(const Container& container, Predicate pred) {
+        for (const auto& elem : container) {
+            if (pred(elem)) {
+                return true;
+                }
+            }
+        return false;
+        }
+
+    // ----- No elements satisfy predicate
+    template<std::ranges::range Container, typename Predicate>
+    bool noneOf(const Container& container, Predicate pred) {
+        for (const auto& elem : container) {
+            if (pred(elem)) {
+                return false;
+                }
+            }
+        return true;
+        }
+
+    // ----- Count elements that satisfy predicate
+    template<std::ranges::range Container, typename Predicate>
+    size_t countIf(const Container& container, Predicate pred) {
+        size_t counter = 0;
+        for (const auto& elem : container) {
+            if (pred(elem)) {
+                counter++;
+                }
+            }
+        return counter;
+        }
+
+    // ----- Find first element that satisfies predicate
+    template<std::ranges::range Container, typename Predicate>
+    std::optional<std::ranges::range_value_t<Container>>
+        findIf(const Container& container, Predicate pred) {
+        for (const auto& elem : container) {
+            if (pred(elem)) {
+                return elem;
+                }
+            }
+        return std::nullopt;
+        }
+
     }

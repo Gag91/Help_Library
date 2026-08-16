@@ -3,12 +3,20 @@
 #include <string>
 #include <sstream>
 #include <stdexcept>
+#include "hp/concpets/concept"
 
 namespace hp {
 
     // ----- Simple add for two arguments
     template <typename T>
     [[nodiscard]] T add(T a, T b) {
+        if (hp::overflow::check::Add(a, b)) {
+            throw std::overflow_error(
+                std::string("Overflow in ") + __FUNCTION__ +
+                " inside " + __FILE__ + " at line: " +
+                std::to_string(__LINE__)
+            );
+            }
         return a + b;
         }
 
@@ -17,6 +25,13 @@ namespace hp {
     [[nodiscard]] auto add(T... args) {
         static_assert((std::is_arithmetic_v<T> && ...),
             "All arguments must be numbers!");
+        if (hp::overflow::make::Add(args...)) {
+            throw std::overflow_error(
+                std::string("Overflow in ") + __FUNCTION__ +
+                " inside " + __FILE__ + " at line: " +
+                std::to_string(__LINE__)
+            );
+            }
         return (args + ...);
         }
 
@@ -33,7 +48,16 @@ namespace hp {
         T next;
         while (ss >> op >> next) {
             switch (op) {
-                case '+': result += next; break;
+                case '+':
+                    if (hp::overflow::make::Add(result, next)) {
+                        throw std::overflow_error(
+                            std::string("Overflow in ") + __FUNCTION__ +
+                            " inside " + __FILE__ + " at line: " +
+                            std::to_string(__LINE__)
+                        );
+                        }
+                    result += next;
+                    break;
                 default:
                     throw std::runtime_error("Only '+' supported in hp::add");
                 }
@@ -41,4 +65,4 @@ namespace hp {
         return result;
         }
 
-    }
+    } // namespace hp

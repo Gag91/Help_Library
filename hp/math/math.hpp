@@ -10,13 +10,69 @@
 #include "hp/math/mult.hpp"
 #include "hp/math/div.hpp"
 #include "hp/math/calculator.hpp"
+#include "hp/other/overflow.hpp"
 
-/*
------ Notes :
-I suck at math..., so most of the formula have been founded whit google lol
-*/
 namespace hp {
 
+    namespace make {
+
+        template <typename T>
+        constexpr T positive(T a) {
+            static_assert(std::is_arithmetic_v<T>, "Argument must be arithmetic");
+            if (a > 0) { return a; }
+            if (a < 0) {
+                if (a == std::numeric_limits<T>::min()) {
+                    return std::numeric_limits<T>::max();
+                    }
+                return -a;
+                }
+            return 0;
+            }
+
+        // ----- Convert to negative
+        template <typename T>
+        constexpr T negative(T a) {
+            static_assert(std::is_arithmetic_v<T>, "Argument must be arithmetic");
+            if (a < 0) { return a; }
+            if (a > 0) {
+                if (a == std::numeric_limits<T>::max()) {
+                    return std::numeric_limits<T>::min();
+                    }
+                return -a;
+                }
+            return 0;
+            }
+
+        template <is_intOrFloat T>
+        constexpr auto toInt(T a) -> int {
+            if constexpr (std::is_floating_point_v<T>) {
+                if (a > static_cast<T>(std::numeric_limits<int>::max()) ||
+                    a < static_cast<T>(std::numeric_limits<int>::min())) {
+                    return (a > 0) ? std::numeric_limits<int>::max()
+                        : std::numeric_limits<int>::min();
+                    }
+                return static_cast<int>(a);
+                }
+            else {
+                return a;
+                }
+            }
+        template <is_intOrFloat T>
+        constexpr auto toFloat(T a) -> float { 
+            if constexpr (std::integral<T>) { 
+                if (a > static_cast<T>(std::numeric_limits<float>::max()) || 
+                a < static_cast<T>(std::numeric_limits<float>::lowest())) {
+                    return (a > 0) ? std::numeric_limits<float>::max()
+                        : std::numeric_limits<float>::lowest();
+                    }
+                return static_cast<float>(a);
+                }
+            else {
+                return a; 
+                }
+            }
+        
+        }
     // ----- Check if string is a number (including decimals)
     bool isNumber(const std::string& str) {
         if (str.empty()) return false;
@@ -30,11 +86,11 @@ namespace hp {
 
         // Handle optional sign
         if (trimmed[0] == '-' || trimmed[0] == '+') i++;
-        if (i >= trimmed.length()) return false;  // Just a sign?
+        if (i >= trimmed.length()) return false; 
 
         for (; i < trimmed.length(); i++) {
             if (trimmed[i] == '.') {
-                if (hasDecimal) return false;  // Second decimal point
+                if (hasDecimal) return false;
                 hasDecimal = true;
                 }
             else if (!std::isdigit(static_cast<unsigned char>(trimmed[i]))) {
