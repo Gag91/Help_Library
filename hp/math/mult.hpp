@@ -3,8 +3,8 @@
 #include <string>
 #include <sstream>
 #include <stdexcept>
-#include "hp/other/overflow.hpp"
-#include "hp/other/underflow.hpp"
+#include "hp/flows/overflow.hpp"
+#include "hp/flows/underflow.hpp"
 
 namespace hp {
 
