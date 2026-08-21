@@ -86,7 +86,7 @@ namespace hp {
             constexpr bool Div(T a, T b) {
                 static_assert(std::is_arithmetic_v<T>,
                     "hp::overflow::check::Div: T must be arithmetic!");
-                if (hp::overflow::Division_Zero(a, b)) {
+                if (hp::overflow::check::Division_Zero(a, b)) {
                     return true;
                     }
                 if constexpr (std::is_integral_v<T>) {

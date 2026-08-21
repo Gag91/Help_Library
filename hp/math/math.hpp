@@ -10,7 +10,7 @@
 #include "hp/math/mult.hpp"
 #include "hp/math/div.hpp"
 #include "hp/math/calculator.hpp"
-#include "hp/other/overflow.hpp"
+#include "hp/flows/overflow.hpp"
 
 namespace hp {
 
@@ -43,8 +43,9 @@ namespace hp {
             return 0;
             }
 
-        template <is_intOrFloat T>
+        template <typename T>
         constexpr auto toInt(T a) -> int {
+            static_assert(!std::is_floating_point_v<T> || !std::integral<T>, "T should be Int or Float");
             if constexpr (std::is_floating_point_v<T>) {
                 if (a > static_cast<T>(std::numeric_limits<int>::max()) ||
                     a < static_cast<T>(std::numeric_limits<int>::min())) {
@@ -57,9 +58,10 @@ namespace hp {
                 return a;
                 }
             }
-        template <is_intOrFloat T>
-        constexpr auto toFloat(T a) -> float { 
-            if constexpr (std::integral<T>) { 
+        template <typename T>
+        constexpr auto toFloat(T a) -> float {
+            static_assert(!std::is_floating_point_v<T> || !std::integral<T>, "T should be Int or Float");
+            if constexpr (std::integral<T>) {
                 if (a > static_cast<T>(std::numeric_limits<float>::max()) || 
                 a < static_cast<T>(std::numeric_limits<float>::lowest())) {
                     return (a > 0) ? std::numeric_limits<float>::max()
@@ -74,7 +76,7 @@ namespace hp {
         
         }
     // ----- Check if string is a number (including decimals)
-    bool isNumber(const std::string& str) {
+    inline bool isNumber(const std::string& str) {
         if (str.empty()) return false;
 
         std::string trimmed = str;
@@ -101,17 +103,17 @@ namespace hp {
         }
 
     // ----- Check if number is even
-    bool isEven(int n) {
+    inline bool isEven(int n) {
         return n % 2 == 0;
         }
 
     // ----- Check if number is odd
-    bool isOdd(int n) {
+    inline bool isOdd(int n) {
         return n % 2 != 0;
         }
 
     // ----- Check if number is prime
-    bool isPrime(int n) {
+    inline bool isPrime(int n) {
         if (n < 2) return false;
         if (n == 2) return true;
         if (n % 2 == 0) return false;
@@ -122,7 +124,7 @@ namespace hp {
         }
 
     // ----- Calculate factorial (iterative)
-    unsigned long long factorial(int n) {
+    inline unsigned long long factorial(int n) {
         if (n < 0) return 0;
         unsigned long long result = 1;
         for (int i = 2; i <= n; i++) {
@@ -132,14 +134,14 @@ namespace hp {
         }
 
     // ----- Calculate factorial (recursive)
-    unsigned long long factorialRecursive(int n) {
+    inline unsigned long long factorialRecursive(int n) {
         if (n < 0) return 0;
         if (n <= 1) return 1;
         return n * factorialRecursive(n - 1);
         }
 
     // ----- Greatest Common Divisor (Euclidean algorithm)
-    int gcd(int a, int b) {
+    inline int gcd(int a, int b) {
         a = std::abs(a);
         b = std::abs(b);
         while (b != 0) {
@@ -151,13 +153,13 @@ namespace hp {
         }
 
     // ----- Least Common Multiple
-    int lcm(int a, int b) {
+    inline int lcm(int a, int b) {
         if (a == 0 || b == 0) return 0;
         return std::abs(a) / gcd(a, b) * std::abs(b);
         }
 
     // ----- Generate nth Fibonacci number (iterative)
-    unsigned long long fibonacci(int n) {
+    inline unsigned long long fibonacci(int n) {
         if (n < 0) return 0;
         if (n <= 1) return n;
         unsigned long long a = 0, b = 1, c;
@@ -170,7 +172,7 @@ namespace hp {
         }
 
     // ----- Fibonacci Recursive
-    unsigned long long fibonacciRecursive(int n) {
+    inline unsigned long long fibonacciRecursive(int n) {
         if (n <= 1) return n;
         unsigned long long a = 0, b = 1;
         for (int i = 2; i <= n; i++) {

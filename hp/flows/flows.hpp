@@ -219,7 +219,7 @@ namespace hp {
                     if (hp::overflow::make::Div(a, rest...) || hp::underflow::make::Div(a, rest...)) {
                         return std::nullopt;
                         }
-                    return (a * ... * rest);
+                    return (a / ... / rest);
                     }
                 } // namespace make
             } // namespace Try

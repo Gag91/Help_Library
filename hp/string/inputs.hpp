@@ -4,7 +4,7 @@
 namespace hp {
 
     // ---- Most regular getInput
-    std::string getInput(const std::string& msg) {
+    inline std::string getInput(const std::string& msg) {
         std::string input;
         std::cout << msg;
         std::cin >> input;
@@ -26,7 +26,7 @@ namespace hp {
         }
 
     // ---- Same as hp::get but more advanced for string | Using getline
-    std::string getStr(const std::string& msg, const std::string& error = "") {
+    inline std::string getStr(const std::string& msg, const std::string& error = "") {
         std::string value;
         std::cout << msg;
         if (std::getline(std::cin, value)) { // <-- here is the diffrence whit hp::get

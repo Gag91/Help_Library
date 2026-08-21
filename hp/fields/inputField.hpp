@@ -122,7 +122,7 @@ namespace hp {
         }
 
     // ----- Functio to clear a previous Input field | Needs the exact same : row, col, width
-    void clearInputField(int row, int col, int width) {
+    inline void clearInputField(int row, int col, int width) {
         for (int i = 0; i < 3; i++) {
             std::cout << "\033[" << (row + i) << ";" << col << "H";
             std::cout << "\033[2K";

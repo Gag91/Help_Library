@@ -10,7 +10,7 @@
 namespace hp {
 
     // ----- Input Whit time limit
-    std::string timedInput(int row, int col, int width, int timeLimit, const std::string& msg = "", const std::string time = "TIME'S UP!",
+    inline std::string timedInput(int row, int col, int width, int timeLimit, const std::string& msg = "", const std::string time = "TIME'S UP!",
         const std::string allowed = "", bool showTime = false, BorderStyle style = EXTENDED) {
         std::string input;
         std::string prevInput = " ";

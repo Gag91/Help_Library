@@ -9,23 +9,23 @@
 namespace hp {
 
     // ----- Contains for string (specific overload) -----
-    bool contains(const std::string& str, const std::string& substr) {
+    inline bool contains(const std::string& str, const std::string& substr) {
         return str.find(substr) != std::string::npos;
         }
 
     // ----- Contains for string + const char* (to avoid ambiguity) -----
-    bool contains(const std::string& str, const char* substr) {
+    inline bool contains(const std::string& str, const char* substr) {
         return str.find(substr) != std::string::npos;
         }
 
     // ----- Contains for string + char -----
-    bool contains(const std::string& str, char c) {
+    inline bool contains(const std::string& str, char c) {
         return str.find(c) != std::string::npos;
         }
 
     // ----- Contains for containers (generic, single value) -----
     template<std::ranges::range T, typename U>
-    bool contains(const T& container, const U& value) {
+    inline bool contains(const T& container, const U& value) {
         for (const auto& elem : container) {
             if (elem == value) return true;
             }
@@ -34,19 +34,19 @@ namespace hp {
 
     // ----- Contains Any (multiple values) -----
     template<std::ranges::range T, typename... U>
-    bool containsAny(const T& container, const U&... values) {
+    inline bool containsAny(const T& container, const U&... values) {
         return (contains(container, values) || ...);
         }
 
     // ----- Contains All (multiple values) -----
     template<std::ranges::range T, typename... U>
-    bool containsAll(const T& container, const U&... values) {
+    inline bool containsAll(const T& container, const U&... values) {
         return (contains(container, values) && ...);
         }
 
     // ----- Print All -----
     template<std::ranges::range T>
-    void printAll(const T& containers) {
+    inline void printAll(const T& containers) {
         for (size_t i = 0; i < containers.size(); i++) {
             std::cout << containers[i];
             }
@@ -54,7 +54,7 @@ namespace hp {
 
     // ----- Print All with newline -----
     template<std::ranges::range T>
-    void printlnAll(const T& containers) {
+    inline void printlnAll(const T& containers) {
         for (size_t i = 0; i < containers.size(); i++) {
             std::cout << containers[i] << std::endl;
             }
@@ -63,7 +63,7 @@ namespace hp {
     // ----- Sum All (numbers only) -----
     template<std::ranges::range T>
         requires std::is_arithmetic_v<std::ranges::range_value_t<T>>
-    auto sumAll(const T& containers) {
+    inline auto sumAll(const T& containers) {
         using etype = std::ranges::range_value_t<T>;
         etype result = 0;
         for (const auto& elem : containers) {
@@ -74,7 +74,7 @@ namespace hp {
 
     // ----- Index Of an Item -----
     template<std::ranges::range Container, typename T>
-    int indexOf(const Container& c, const T& value) {
+    inline int indexOf(const Container& c, const T& value) {
         using etype = std::ranges::range_value_t<Container>;
         static_assert(std::is_same_v<etype, T>, "Value type must match container element type!");
         int index = 0;
@@ -87,11 +87,11 @@ namespace hp {
 
     // ----- Append to vector -----
     template <typename T, typename... Args>
-    void append(std::vector<T>& vec, Args... rest) {
+    inline void append(std::vector<T>& vec, Args... rest) {
         (vec.push_back(rest), ...);
         }
 
-        // ----- Filter (keeps elements that satisfy predicate)
+    // ----- Filter (keeps elements that satisfy predicate)
     template<std::ranges::range Container, typename Predicate>
     constexpr auto filter(const Container& container, Predicate pred) {
         using valueType = std::ranges::range_value_t<Container>;
@@ -106,7 +106,7 @@ namespace hp {
 
     // ----- All elements satisfy predicate
     template<std::ranges::range Container, typename Predicate>
-    bool allOf(const Container& container, Predicate pred) {
+    inline bool allOf(const Container& container, Predicate pred) {
         for (const auto& elem : container) {
             if (!pred(elem)) {
                 return false;
@@ -117,7 +117,7 @@ namespace hp {
 
     // ----- Any element satisfies predicate
     template<std::ranges::range Container, typename Predicate>
-    bool anyOf(const Container& container, Predicate pred) {
+    inline bool anyOf(const Container& container, Predicate pred) {
         for (const auto& elem : container) {
             if (pred(elem)) {
                 return true;
@@ -128,7 +128,7 @@ namespace hp {
 
     // ----- No elements satisfy predicate
     template<std::ranges::range Container, typename Predicate>
-    bool noneOf(const Container& container, Predicate pred) {
+    inline bool noneOf(const Container& container, Predicate pred) {
         for (const auto& elem : container) {
             if (pred(elem)) {
                 return false;
@@ -139,7 +139,7 @@ namespace hp {
 
     // ----- Count elements that satisfy predicate
     template<std::ranges::range Container, typename Predicate>
-    size_t countIf(const Container& container, Predicate pred) {
+    inline size_t countIf(const Container& container, Predicate pred) {
         size_t counter = 0;
         for (const auto& elem : container) {
             if (pred(elem)) {

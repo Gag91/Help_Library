@@ -95,7 +95,7 @@ namespace hp {
                 static_assert(std::is_arithmetic_v<T>,
                     "hp::underflow::check::DivOverflow: T must be arithmetic!");
 
-                if (hp::underflow::Division_Zero(a, b)) {
+                if (hp::underflow::check::Division_Zero(a, b)) {
                     return true;
                     }
                 if constexpr (std::is_integral_v<T>) {

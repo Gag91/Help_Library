@@ -8,7 +8,7 @@ namespace hp {
     namespace str {
 
         // ----- String to upper
-        [[nodiscard]] std::string to_upper(std::string_view str) {
+        [[nodiscard]] inline std::string to_upper(std::string_view str) {
             std::string result;
             result.reserve(str.size());
             for (char c : str) {
@@ -18,7 +18,7 @@ namespace hp {
             }
 
         // ----- String to lower
-        [[nodiscard]] std::string to_lower(std::string_view str) {
+        [[nodiscard]] inline std::string to_lower(std::string_view str) {
             std::string result;
             result.reserve(str.size());
             for (char c : str) {
@@ -30,7 +30,7 @@ namespace hp {
         namespace trim {
 
             // ----- White spaces
-            [[nodiscard]] std::string white_spaces(std::string_view str) {
+            [[nodiscard]] inline std::string white_spaces(std::string_view str) {
                 std::string result;
                 result.reserve(str.size());
                 for (char c : str) {
@@ -42,7 +42,7 @@ namespace hp {
                 }
 
             // ----- Numbers
-            [[nodiscard]] std::string numbers(std::string_view str) {
+            [[nodiscard]] inline std::string numbers(std::string_view str) {
                 std::string result;
                 result.reserve(str.size());
                 for (char c : str) {
@@ -54,7 +54,7 @@ namespace hp {
                 }
 
             // ----- Letters
-            [[nodiscard]] std::string letters(std::string_view str) {
+            [[nodiscard]] inline std::string letters(std::string_view str) {
                 std::string result;
                 result.reserve(str.size());
                 for (char c : str) {
@@ -74,7 +74,7 @@ namespace hp {
         std::cout << sep << std::endl;
         }
     // ----- Works the same as "std::string(int, char)" but maded to use string instead
-    std::string repeatString(const std::string& str, int count) {
+    inline std::string repeatString(const std::string& str, int count) {
         std::string result;
         for (int i = 0; i < count; i++) {
             result += str;
@@ -114,11 +114,11 @@ namespace hp {
             }
         }
 
-    bool starts_with(const std::string& str, const std::string& prefix) {
+    inline bool starts_with(const std::string& str, const std::string& prefix) {
         return str.starts_with(prefix);
         }
 
-    bool ends_with(const std::string& str, const std::string& suffix) {
+    inline bool ends_with(const std::string& str, const std::string& suffix) {
         return str.ends_with(suffix);
         }
 

@@ -99,8 +99,8 @@ namespace hp {
     // ----- Main Class
     class Keyboard {
     private:
-        static std::unordered_map<int, bool> previousStates;
-        static std::unordered_map<int, bool> currentStates;
+        static inline std::unordered_map<int, bool> previousStates;
+        static inline std::unordered_map<int, bool> currentStates;
 
     public:
 
@@ -132,9 +132,6 @@ namespace hp {
             return isHold(key) || isPressed(key);
             }
         };
-
-    inline std::unordered_map<int, bool> Keyboard::previousStates;
-    inline std::unordered_map<int, bool> Keyboard::currentStates;
 
     // ----------- MOST IMPORTANT FUNCTION !!!! This function is required to make all other keyboard functions WORKS!!!! ---------- //
     inline void updateKeyboard() {

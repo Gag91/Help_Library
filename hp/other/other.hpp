@@ -133,7 +133,7 @@ namespace hp {
         std::cout << getColorCode(color) << msg << "\033[0m\n";
         }
 
-    void exit(int a = 0) {
+    inline void exit(int a = 0) {
         if (a == 0) {
             std::exit(0);
             }
@@ -146,13 +146,13 @@ namespace hp {
         }
 
     template <typename T>
-    void loop(int count, T action) {
+    inline void loop(int count, T action) {
         for (int i = 0; i < count; i++) {
             action(i);
             }
         }
 
-    void setCenter(int row, int width) {
+    inline void setCenter(int row, int width) {
         CONSOLE_SCREEN_BUFFER_INFO csbi;
         GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE), &csbi);
         int consoleWidth = csbi.srWindow.Right - csbi.srWindow.Left + 1;
@@ -160,7 +160,7 @@ namespace hp {
         std::cout << "\033[" << row << ";" << col << "H";
         }
 
-    void enableUTF8() {
+    inline void enableUTF8() {
 #ifdef _WIN32
         SetConsoleOutputCP(CP_UTF8);
         SetConsoleCP(CP_UTF8);

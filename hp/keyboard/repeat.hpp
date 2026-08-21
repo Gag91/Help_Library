@@ -5,13 +5,13 @@ namespace hp {
     // ----- Main class
     class KeyRepeat {
     private:
-        std::unordered_map<int, int> repeatCounts;
-        std::unordered_map<int, bool> wasKeyDown;
+        static inline std::unordered_map<int, int> repeatCounts;
+        static inline std::unordered_map<int, bool> wasKeyDown;
 
     public:
 
         // ----- Check if key has been repeated
-        bool isKeyRepeated(int key, int delay = 500, int repeatDelay = 100) {
+        inline bool isKeyRepeated(int key, int delay = 500, int repeatDelay = 100) {
             bool isDown = GetAsyncKeyState(key) & 0x8000;
             if (isDown && !wasKeyDown[key]) {
                 wasKeyDown[key] = true;
@@ -34,7 +34,7 @@ namespace hp {
             }
 
         // ----- Reset Count
-        void reset() {
+        inline void reset() {
             repeatCounts.clear();
             wasKeyDown.clear();
             }

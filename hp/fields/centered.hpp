@@ -18,6 +18,10 @@ namespace hp {
         CONSOLE_SCREEN_BUFFER_INFO csbi;
         GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE), &csbi);
         int consoleWidth = csbi.srWindow.Right - csbi.srWindow.Left + 1;
+        if (width == -1) {
+            width = msg.size() + 4;
+            }
+
         int col = (consoleWidth - width) / 2;
         std::string tl, tr, bl, br, sep, hChar, vChar;
         switch (style) {
@@ -41,6 +45,7 @@ namespace hp {
         std::cout << "\033[" << (row + 2) << ";" << col << "H";
         std::cout << bl << repeatString(hChar, width) << br;
         }
+
 
     inline std::string CenteredInput(int row, int width, const std::string& msg, std::string allowed = "", hp::Color color = hp::WHITE, int lenght = -1, BorderStyle style = EXTENDED) {
         if (lenght == -1) lenght = width;
