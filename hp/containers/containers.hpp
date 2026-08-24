@@ -103,7 +103,7 @@ namespace hp {
             }
         return result;
         }
-
+    
     // ----- All elements satisfy predicate
     template<std::ranges::range Container, typename Predicate>
     inline bool allOf(const Container& container, Predicate pred) {
