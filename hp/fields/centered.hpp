@@ -10,6 +10,7 @@
 #include "hp/fields/field.hpp"     
 #include "hp/keyboard/keyboard.hpp"
 #include "hp/time/time.hpp"
+#include <optional>
 
 namespace hp {
 
@@ -47,7 +48,8 @@ namespace hp {
         }
 
 
-    inline std::string CenteredInput(int row, int width, const std::string& msg, std::string allowed = "", hp::Color color = hp::WHITE, int lenght = -1, BorderStyle style = EXTENDED) {
+    template <typename T = std::string>
+    std::optional<T> CenteredInput(int row, int width, const std::string& msg, std::string allowed = "", hp::Color color = hp::WHITE, int lenght = -1, BorderStyle style = EXTENDED) {
         if (lenght == -1) lenght = width;
         CONSOLE_SCREEN_BUFFER_INFO csbi;
         GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE), &csbi);
@@ -100,7 +102,15 @@ namespace hp {
             if (_kbhit()) {
                 int ch = _getch();
                 if (ch == 13) {
-                    return input;
+                    if (input.empty()) {
+                        return std::nullopt;
+                        }
+                    std::stringstream ss(input);
+                    T result;
+                    if (ss >> result) {
+                        return result;
+                        }
+                    return std::nullopt;
                     }
                 else if (ch == 8) {
                     if (!input.empty()) {
@@ -108,7 +118,7 @@ namespace hp {
                         }
                     }
                 else if (ch == 27) {
-                    return "";
+                    return std::nullopt;
                     }
                 else if (ch >= 32 && ch <= 126 && input.size() < lenght) {
                     char c = static_cast<char>(ch);

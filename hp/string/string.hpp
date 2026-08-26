@@ -2,6 +2,7 @@
 #include <iostream>
 #include <functional>
 #include "hp/string/inputs.hpp"
+#include <windows.h>
 
 namespace hp {
 
