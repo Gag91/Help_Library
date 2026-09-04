@@ -9,7 +9,7 @@
 namespace hp {
 
     // ----- Saving Data
-    template <typename T>
+    template <typename T = std::string>
     bool save(const std::string& filename, const std::vector<std::pair<std::string, T>>& args) {
         std::ofstream file(filename);
         if (!file.is_open()) [[unlikely]] {
@@ -26,7 +26,9 @@ namespace hp {
 
 
     // ----- Loading Data
-    inline bool load(const std::string& filename, const std::vector<std::string>& names, std::vector<std::string>& args) {
+    template <typename T = std::string>
+    bool load(const std::string& filename, const std::vector<std::pair<std::string, T*>>& arg) {
+        auto& args = arg;
         std::ifstream file(filename);
         if (!file.is_open()) [[unlikely]] {
             std::cerr << "Could not open " + filename << "\n";
@@ -34,14 +36,13 @@ namespace hp {
             }
 
         std::string line;
-        for (size_t i = 0; i < args.size() && i < names.size(); i++) {
+        for (size_t i = 0; i < args.size(); i++) {
             if (!std::getline(file, line)) {
                 break;
                 }
-
-            if (line.rfind(names[i], 0) == 0) {
-                args[i] = line.substr(names[i].size() + 2);
-                }
+            if (line.rfind(args[i].first, 0) == 0) { 
+                *args[i].second = line.substr(args[i].first.size() + 2);
+            }
             }
         return true;
         }

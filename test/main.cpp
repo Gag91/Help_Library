@@ -15,10 +15,12 @@ int main() {
     hp::cls();
     hp::enableUTF8();
 
-    user.name = hp::load("test.txt", "name").value();
-    user.age = hp::load<int>("test.txt", "age").value();
-    user.random = hp::load<int>("test.txt", "random").value();
+    std::string ageStr = "";
+    std::string randStr = "";
+    hp::load("test.txt",{{"name",&user.name},{"age",&ageStr},{"random",&randStr}}); 
 
+    user.age = std::stoi(ageStr);
+    user.random = std::stoi(randStr);
     hp::centeredBox(3, 50, user.name);
     hp::centeredBox(6, 50, std::to_string(user.age));
     hp::centeredBox(9, 50, std::to_string(user.random));
