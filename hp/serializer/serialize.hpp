@@ -10,6 +10,7 @@ namespace hp {
 
     // ----- Saving Data
     template <typename T = std::string>
+    requires std::is_arithmetic_v<T> || std::is_same_v<T, std::string>
     bool save(const std::string& filename, const std::vector<std::pair<std::string, T>>& args) {
         std::ofstream file(filename);
         if (!file.is_open()) [[unlikely]] {
@@ -27,6 +28,7 @@ namespace hp {
 
     // ----- Loading Data
     template <typename T = std::string>
+    requires std::is_same_v<T, std::string>
     bool load(const std::string& filename, const std::vector<std::pair<std::string, T*>>& arg) {
         auto& args = arg;
         std::ifstream file(filename);
@@ -49,7 +51,8 @@ namespace hp {
 
     // ----- Loading specified data
     template <typename T = std::string>
-    inline std::optional<T> load(const std::string& filename, const std::string& arg) {
+    requires std::is_arithmetic_v<T> || std::is_same_v<T, std::string>
+    std::optional<T> load(const std::string& filename, const std::string& arg) {
         std::ifstream file(filename);
         if (!file.is_open()) [[unlikely]] {
             std::cerr << "Could not open " + filename << "\n";
