@@ -1,0 +1,8 @@
+Output: type.exe
+InputFiles { 
+    hp/type/type_list.cpp 
+}
+Compiler: gcc
+Includes {
+    .
+}

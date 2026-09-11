@@ -7,7 +7,7 @@ namespace hp {
 
     // ----- Returns the type of a value
     template <typename T>
-    consteval std::string_view type_of(T&& a) {
+    consteval std::string_view type_of() {
         return std::meta::display_string_of(^^T);
     }
 
