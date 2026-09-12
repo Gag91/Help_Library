@@ -1,20 +1,21 @@
 #pragma once
 
-#include <string>
-#include <cstdlib>
-#include <stdexcept>
-#include <memory>
 #include <array>
+#include <cstdlib>
 #include <cstring>
+#include <memory>
+#include <stdexcept>
+#include <stdio.h>
+#include <string>
 
 namespace hp {
 
-    inline std::string command(const std::string& command,bool std_err = true) {
+    inline std::string command(const std::string &command, bool std_err = true) {
         std::array<char, 4096> buffer;
 
         std::string cmd;
-        if(std_err) {
-             cmd = command + " 2>&1";
+        if (std_err) {
+            cmd = command + " 2>&1";
         }
 
         std::unique_ptr<FILE, decltype(&pclose)> pipe(popen(cmd.c_str(), "r"), pclose);
@@ -31,4 +32,4 @@ namespace hp {
         }
         return result;
     }
-}
+} // namespace hp
