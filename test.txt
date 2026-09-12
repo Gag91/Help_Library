@@ -1,3 +1,0 @@
-name: xaviii
-age: 1555
-random: 7884
