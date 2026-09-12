@@ -2,54 +2,20 @@
 
 #include "hp/meta/types.hpp"
 
-#include <array>
+#include <concepts>
 #include <iostream>
 #include <type_traits>
-#include <utility>
-#include <vector>
 
 namespace hp {
 
-    template <typename... Ts>
-    struct type_list;
-
-    template <typename List>
-    struct front_impl;
-
-    template <typename List>
-    struct Tail;
-
-    template <typename List>
-    struct back_impl;
-
-    template <typename List>
-    struct clear_impl;
-
-    template <typename H, typename... T>
-    struct Tail<type_list<H, T...>> {
-        using type = type_list<T...>;
-    };
-
-    template <typename T, typename... Us>
-    struct front_impl<type_list<T, Us...>> {
-        using type = T;
-    };
+    template <typename>
+    constexpr bool always_false = false;
 
     template <typename T>
-    struct back_impl<type_list<T>> {
-        using type = T;
-    };
-
-    template <typename H, typename... T>
-    struct back_impl<type_list<H, T...>> {
-        using type =
-            typename back_impl<typename Tail<type_list<H, T...>>::type>::type;
-    };
+    concept end = always_false<T>;
 
     template <typename... Ts>
-    struct clear_impl<type_list<Ts...>> {
-        using type = type_list<>;
-    };
+    struct type_list;
 
     template <typename>
     struct pop_front_impl {};
@@ -64,12 +30,26 @@ namespace hp {
         using type = type_list<>;
     };
 
+    template <typename List, typename T>
+    struct prepend_to;
+
+    template <typename... Ts, typename T>
+    struct prepend_to<type_list<Ts...>, T> {
+        using type = type_list<T, Ts...>;
+    };
+
     template <typename>
     struct pop_back_impl {};
 
-    template <typename T, typename... Ts>
-    struct pop_back_impl<type_list<T, Ts...>> {
-        using type = type_list<Ts...>;
+    template <typename T>
+    struct pop_back_impl<type_list<T>> {
+        using type = type_list<>;
+    };
+
+    template <typename U, typename... Ts>
+    struct pop_back_impl<type_list<U, Ts...>> {
+        using rest = typename pop_back_impl<type_list<Ts...>>::type;
+        using type = typename prepend_to<rest, U>::type;
     };
 
     template <>
@@ -85,16 +65,16 @@ namespace hp {
         template <typename... Us>
         using prepend = type_list<Us..., Ts...>;
 
-        template <typename U>
-        using push_back = type_list<Ts..., U>;
+        using clear = type_list<>;
 
-        template <typename U>
-        using push_front = type_list<U, Ts...>;
+        template <end...>
+        using front = Ts...[0];
 
-        using clear = typename clear_impl<type_list<Ts...>>::type;
-        using front = typename front_impl<type_list<Ts...>>::type;
-        using back = typename back_impl<type_list<Ts...>>::type;
+        template <end...>
+        using back = Ts...[sizeof...(Ts) - 1];
+
         using pop_front = typename pop_front_impl<type_list<Ts...>>::type;
+        using pop_back = typename pop_back_impl<type_list<Ts...>>::type;
 
         template <std::size_t index>
             requires(index < sizeof...(Ts))
@@ -107,7 +87,7 @@ namespace hp {
         static constexpr bool contains = (std::is_same_v<U, Ts> || ...);
 
         template <typename Predicate>
-        static void for_each(Predicate &func) {
+        static void for_each(Predicate &&func) {
             (func(Ts{}), ...);
         }
 
@@ -151,12 +131,6 @@ namespace hp {
 
         template <typename... Us>
         using prepend = type_list<Us...>;
-
-        template <typename U>
-        using push_back = type_list<U>;
-
-        template <typename U>
-        using push_front = type_list<U>;
     };
 
     template <typename... Ts>

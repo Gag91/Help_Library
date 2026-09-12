@@ -1,0 +1,13 @@
+Version: std=c++26
+Output: type.exe
+Compiler: gcc
+Flags {
+    -lstdc++exp
+    -freflection
+}
+InputFiles {
+    hp/type/type_list.cpp
+}
+Includes {
+    .
+}
