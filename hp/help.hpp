@@ -6,6 +6,7 @@
 #include "hp/containers/containers.hpp"
 #include "hp/errors/error.hpp"
 #include "hp/fields/inputField.hpp"
+#include "hp/flows/flows.hpp"
 #include "hp/keyboard/keyboard.hpp"
 #include "hp/math/math.hpp"
 #include "hp/menu/menu.hpp"
