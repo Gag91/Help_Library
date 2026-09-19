@@ -18,7 +18,7 @@ namespace hp {
         }
 
         template <typename... Args>
-        static void emit(const char *color, const char *label, Args &&...args) {
+        static void emit(std::string_view color, const char *label, Args &&...args) {
             std::print("{} {}{}{} ", timestamp(), color, label, getColorCode(RESET));
             (std::print("{}", std::forward<Args>(args)), ...);
             std::println();
