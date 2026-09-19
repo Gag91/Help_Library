@@ -8,6 +8,7 @@
 #include "hp/fields/inputField.hpp"
 #include "hp/flows/flows.hpp"
 #include "hp/keyboard/keyboard.hpp"
+#include "hp/log/logger.hpp"
 #include "hp/math/math.hpp"
 #include "hp/menu/menu.hpp"
 #include "hp/other/other.hpp"
@@ -17,4 +18,3 @@
 #include "hp/system/command.hpp"
 #include "hp/time/inputs.hpp"
 #include "hp/type/type_list.hpp"
-
