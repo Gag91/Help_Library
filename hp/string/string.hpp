@@ -1,5 +1,6 @@
 #pragma once
 #include "hp/string/inputs.hpp"
+#include <filesystem>
 #include <functional>
 #include <iostream>
 #include <windows.h>
@@ -26,6 +27,78 @@ namespace hp {
                 result.push_back(static_cast<char>(std::tolower(static_cast<unsigned char>(c))));
             }
             return result;
+        }
+
+        // ----- String to T
+        template <typename T>
+        T from_string(const std::string &str) {
+            using DecayedT = std::remove_cvref_t<T>;
+
+            if constexpr (std::is_same_v<DecayedT, std::string>) {
+                return str;
+
+            } else if constexpr (std::is_same_v<DecayedT, std::string_view>) {
+                return std::string_view(str);
+
+            } else if constexpr (std::is_same_v<DecayedT, std::filesystem::path>) {
+                return std::filesystem::path(str);
+
+            } else if constexpr (std::is_same_v<DecayedT, char>) {
+                if (str.empty()) {
+                    throw std::invalid_argument("Empty string cannot be converted to char");
+                }
+                return str[0];
+
+            } else if constexpr (std::is_same_v<DecayedT, bool>) {
+                if (str == "true" || str == "1" || str == "TRUE" || str == "True")
+                    return true;
+                if (str == "false" || str == "0" || str == "FALSE" || str == "False")
+                    return false;
+                throw std::invalid_argument("Invalid boolean string: " + str);
+
+            } else if constexpr (std::is_same_v<DecayedT, int>) {
+                return std::stoi(str);
+
+            } else if constexpr (std::is_same_v<DecayedT, long>) {
+                return std::stol(str);
+
+            } else if constexpr (std::is_same_v<DecayedT, long long>) {
+                return std::stoll(str);
+
+            } else if constexpr (std::is_same_v<DecayedT, unsigned long>) {
+                return std::stoul(str);
+
+            } else if constexpr (std::is_same_v<DecayedT, unsigned long long>) {
+                return std::stoull(str);
+
+            } else if constexpr (std::is_same_v<DecayedT, float>) {
+                return std::stof(str);
+
+            } else if constexpr (std::is_same_v<DecayedT, double>) {
+                return std::stod(str);
+
+            } else if constexpr (std::is_same_v<DecayedT, long double>) {
+                return std::stold(str);
+
+            } else if constexpr (std::is_same_v<DecayedT, short>) {
+                int val = std::stoi(str);
+                return static_cast<short>(val);
+
+            } else if constexpr (std::is_same_v<DecayedT, unsigned short>) {
+                unsigned long val = std::stoul(str);
+                return static_cast<unsigned short>(val);
+
+            } else if constexpr (std::is_same_v<DecayedT, int8_t> || std::is_same_v<DecayedT, signed char>) {
+                int val = std::stoi(str);
+                return static_cast<int8_t>(val);
+
+            } else if constexpr (std::is_same_v<DecayedT, uint8_t> || std::is_same_v<DecayedT, unsigned char>) {
+                unsigned long val = std::stoul(str);
+                return static_cast<uint8_t>(val);
+
+            } else {
+                throw std::runtime_error("Unsupported type");
+            }
         }
 
         namespace trim {
@@ -67,6 +140,7 @@ namespace hp {
             }
         } // namespace trim
     } // namespace str
+
     // ----- Regular title function
     inline void title(const std::string &t, int w = 40) {
         std::string sep = std::string(w, '=');

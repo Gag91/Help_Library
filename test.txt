@@ -1,2 +1,6 @@
-name: Alice
-city: Paris
+name: Xavi
+age: 50
+ptr: hi
+iptr: 1337
+c: Z
+a: 3.14159
