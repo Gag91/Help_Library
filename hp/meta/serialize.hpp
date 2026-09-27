@@ -28,7 +28,7 @@ namespace hp {
             file << std::meta::identifier_of(m) << ": ";
 
             if constexpr (is_smart_pointer_v<Mtype>) {
-                std::cout << "its a pointer\n";
+                
                 auto &&ptr = value.[:m:];
                 if (ptr) {
                     file << *ptr << "\n";
