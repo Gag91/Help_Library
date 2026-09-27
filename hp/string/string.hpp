@@ -3,8 +3,9 @@
 #include <filesystem>
 #include <functional>
 #include <iostream>
+#ifdef _WIN32
 #include <windows.h>
-
+#endif
 namespace hp {
 
     namespace str {
@@ -159,9 +160,13 @@ namespace hp {
 
     // ----- Centered Seperator
     inline void sp(const std::string &msg, char a = '=') {
+#ifdef _WIN32
         CONSOLE_SCREEN_BUFFER_INFO csbi;
         GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE), &csbi);
         int consoleWidth = csbi.srWindow.Right - csbi.srWindow.Left + 1;
+#else
+        int consoleWidth = 80;
+#endif
         int msgLen = msg.length() + 2;
         int totalWidth = consoleWidth;
         int sideLen = (totalWidth - msgLen) / 2;
