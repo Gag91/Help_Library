@@ -438,6 +438,48 @@ void test_underflow_make() {
     static_assert(hp::underflow::make::Mult(-1000000, 1000000, 1000000));
 }
 
+enum class Color { Red = 1,
+                   Green = 2,
+                   Blue = 3 };
+enum Plain { A = 10,
+             B = 20,
+             C = 30 };
+
+void test_to_string() {
+    assert(hp::str::to_string(std::string("hello")) == "hello");
+    assert(hp::str::to_string(std::string_view("sv")) == "sv");
+    assert(hp::str::to_string(std::filesystem::path("/tmp/x")) == "/tmp/x");
+    assert(hp::str::to_string('A') == "A");
+    assert(hp::str::to_string(true) == "true");
+    assert(hp::str::to_string(false) == "false");
+    assert(hp::str::to_string(42) == "42");
+    assert(hp::str::to_string(42L) == "42");
+    assert(hp::str::to_string(42LL) == "42");
+    assert(hp::str::to_string(42u) == "42");
+    assert(hp::str::to_string(static_cast<int8_t>(-5)) == "-5");
+
+    assert(hp::str::to_string(Color::Red) == "Red");
+    assert(hp::str::to_string(Color::Green) == "Green");
+    assert(hp::str::to_string(Color::Blue) == "Blue");
+    assert(hp::str::to_string(A) == "A");
+    assert(hp::str::to_string(B) == "B");
+    assert(hp::str::to_string(C) == "C");
+    assert(hp::str::to_string(std::filesystem::file_type::regular) == "regular");
+
+    assert(hp::str::to_string(std::make_unique<int>(99)) == "99");
+    std::unique_ptr<int> up_null;
+    assert(hp::str::to_string(up_null) == "nullptr");
+
+    assert(hp::str::to_string(std::make_shared<int>(7)) == "7");
+    std::shared_ptr<int> sp_null;
+    assert(hp::str::to_string(sp_null) == "nullptr");
+
+    auto sp = std::make_shared<int>(7);
+    assert(hp::str::to_string(std::weak_ptr<int>(sp)) == "7");
+    std::weak_ptr<int> wp_null;
+    assert(hp::str::to_string(wp_null) == "nullptr");
+}
+
 int main() {
     test_math();
     test_strings();
@@ -457,6 +499,7 @@ int main() {
     test_serializer_missing_file();
     test_command();
     test_random_and_files();
+    test_to_string();
 
     std::cout << "All unit tests passed.\n";
     return 0;

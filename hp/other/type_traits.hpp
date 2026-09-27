@@ -75,4 +75,10 @@ namespace hp {
     template <typename T>
     inline constexpr bool is_pair_v = is_pair<T>::value;
 
+    // ----- Is any of
+    template <typename T, typename... Args>
+    constexpr bool any_of() {
+        return ((std::is_same_v<T, Args>) || ...);
+    }
+
 } // namespace hp

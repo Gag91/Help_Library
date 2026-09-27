@@ -6,7 +6,7 @@ Flags {
     -freflection
 }
 InputFiles {
-    test/file.cpp
+    test/unit_tests.cpp
 }
 Includes {
     .

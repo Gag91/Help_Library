@@ -1,8 +1,11 @@
 #pragma once
+#include "hp/other/type_traits.hpp"
 #include "hp/string/inputs.hpp"
 #include <filesystem>
 #include <functional>
 #include <iostream>
+#include <meta>
+
 #ifdef _WIN32
 #include <windows.h>
 #endif
@@ -96,6 +99,63 @@ namespace hp {
             } else if constexpr (std::is_same_v<DecayedT, uint8_t> || std::is_same_v<DecayedT, unsigned char>) {
                 unsigned long val = std::stoul(str);
                 return static_cast<uint8_t>(val);
+
+            } else {
+                throw std::runtime_error("Unsupported type");
+            }
+        }
+
+        // ----- T to String
+        template <typename T>
+        std::string to_string(const T &value) {
+            using DecayedT = std::remove_cvref_t<T>;
+
+            if constexpr (std::is_same_v<DecayedT, std::string>) {
+                return value;
+
+            } else if constexpr (std::is_same_v<DecayedT, std::string_view>) {
+                return std::string(value);
+
+            } else if constexpr (std::is_same_v<DecayedT, std::filesystem::path>) {
+                return value.string();
+
+            } else if constexpr (std::is_same_v<DecayedT, char>) {
+                return std::string(1, value);
+
+            } else if constexpr (std::is_same_v<DecayedT, bool>) {
+                return value ? "true" : "false";
+
+            } else if constexpr (hp::any_of<DecayedT, short, int, long, long long, unsigned short,
+                                            unsigned int, unsigned long, unsigned long long,
+                                            float, double, long double>()) {
+                return std::to_string(value);
+
+            } else if constexpr (std::is_enum_v<DecayedT>) {
+                static constexpr auto enums = std::define_static_array(std::meta::enumerators_of(^^DecayedT));
+                template for (constexpr auto &e : enums) {
+                    if (value == [:e:]) {
+                        return std::format("{}", std::meta::identifier_of(e));
+                    }
+                }
+                return std::to_string(static_cast<std::underlying_type_t<DecayedT>>(value));
+
+            } else if constexpr (hp::is_weak_ptr_v<DecayedT>) {
+                auto locked = value.lock();
+                if (locked == nullptr)
+                    return "nullptr";
+                return hp::str::to_string(*locked);
+
+            } else if constexpr (hp::is_unique_ptr_v<DecayedT> ||
+                                 hp::is_shared_ptr_v<DecayedT>) {
+                if (value == nullptr)
+                    return "nullptr";
+                return hp::str::to_string(*value);
+
+            } else if constexpr (requires { value.to_string(); }) {
+                return value.to_string();
+
+            } else if constexpr (requires { std::to_string(value); }) {
+                return std::to_string(value);
 
             } else {
                 throw std::runtime_error("Unsupported type");
