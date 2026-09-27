@@ -11,6 +11,7 @@
 #include "hp/log/logger.hpp"
 #include "hp/math/math.hpp"
 #include "hp/menu/menu.hpp"
+#include "hp/meta/serialize.hpp"
 #include "hp/other/other.hpp"
 #include "hp/random/random.hpp"
 #include "hp/serializer/serialize.hpp"

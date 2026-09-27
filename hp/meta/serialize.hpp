@@ -1,5 +1,6 @@
 #pragma once
 
+#include "hp/other/type_traits.hpp"
 #include "hp/string/string.hpp"
 #include <fstream>
 #include <meta>
@@ -10,29 +11,6 @@
 #include <vector>
 
 namespace hp {
-
-    template <typename T>
-    struct is_smart_pointer : std::false_type {};
-    template <typename T>
-    struct is_smart_pointer<std::unique_ptr<T>> : std::true_type {};
-    template <typename T>
-    struct is_smart_pointer<std::shared_ptr<T>> : std::true_type {};
-    template <typename T>
-    inline constexpr bool is_smart_pointer_v = is_smart_pointer<T>::value;
-
-    template <typename>
-    struct is_unique_ptr : std::false_type {};
-    template <typename T>
-    struct is_unique_ptr<std::unique_ptr<T>> : std::true_type {};
-    template <typename T>
-    inline constexpr bool is_unique_ptr_v = is_unique_ptr<T>::value;
-
-    template <typename>
-    struct is_shared_ptr : std::false_type {};
-    template <typename T>
-    struct is_shared_ptr<std::shared_ptr<T>> : std::true_type {};
-    template <typename T>
-    inline constexpr bool is_shared_ptr_v = is_shared_ptr<T>::value;
 
     // ----- Saving data from structs/classes
     template <typename T>
