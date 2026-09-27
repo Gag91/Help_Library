@@ -14,7 +14,7 @@ namespace hp {
     class Logger {
       private:
         static std::string timestamp() {
-            return std::format("[{:%H:%M:%S}]", std::chrono::system_clock::now());
+            return std::format("[{:%H:%M}]", std::chrono::system_clock::now());
         }
 
         template <typename... Args>
