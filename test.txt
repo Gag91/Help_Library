@@ -4,4 +4,4 @@ ptr: hi
 iptr: 1337
 c: Z
 a: 3.14159
-bob: Bob { a: 0, b: 0, c: 0, d: 0, e: 0, f: 0, bob2: Bob2 { a: 0, b: 0, c: 0, d: 0, e: 0, f: 0 } }
+bob: Bob { a: 5, b: 52, c: 8, d: 5, e: 9, f: 1, bob2: Bob2 { a: 0, b: 0, c: 0, d: 0, e: 0, f: 0 } }

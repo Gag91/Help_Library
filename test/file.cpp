@@ -1,6 +1,7 @@
 #include "hp/help.hpp"
 #include <iostream>
 #include <memory>
+#include <meta>
 #include <string>
 
 struct Bob2 {
@@ -25,7 +26,7 @@ struct User {
 int main() {
     hp::cls();
 
-    User user{
+    /*User user{
         "Xavi\n",
         50,
         std::make_unique<std::string>("hi"),
@@ -33,12 +34,13 @@ int main() {
         'Z',
         3.14159};
 
-    hp::save("test.txt", user);
+    hp::save("test.txt", user);*/
 
-    user = User{};
-    hp::load("test.txt", user);
+    Bob b = hp::load<Bob>("test.txt", "bob");
 
-    std::cout << "User name: '" << user.name << "'\n";
+    std::println("we got bob: {} {} {} {} {} {}", b.a, b.b, b.c, b.d, b.e, b.f);
+
+    /*std::cout << "User name: '" << user.name << "'\n";
     std::cout << "User age: '" << user.age << "'\n";
     std::cout << "User char: '" << user.c << "'\n";
     std::cout << "User double: '" << user.a << "'\n";
@@ -56,7 +58,7 @@ int main() {
     }
 
     std::cout << "User Bob: " << user.bob.a << " : " << user.bob.b << " : " << user.bob.c << " : " << user.bob.d << " : " << user.bob.e << " : " << user.bob.f << "\n";
-    std::cout << "User Bob Bob2: " << user.bob.bob2.a << " : " << user.bob.bob2.b << " : " << user.bob.bob2.c << " : " << user.bob.bob2.d << " : " << user.bob.bob2.e << " : " << user.bob.bob2.f << "\n";
+    std::cout << "User Bob Bob2: " << user.bob.bob2.a << " : " << user.bob.bob2.b << " : " << user.bob.bob2.c << " : " << user.bob.bob2.d << " : " << user.bob.bob2.e << " : " << user.bob.bob2.f << "\n";*/
 
     return 0;
 }

@@ -181,6 +181,37 @@ namespace hp {
         return file.good();
     }
 
+    // ----- Loading Specified Data
+    template <typename T>
+    T load(const std::string &filename, const std::string &name) {
+        std::ifstream file(filename);
+
+        std::string line;
+        while (std::getline(file, line)) {
+            if (line.empty())
+                continue;
+
+            std::size_t pos = line.find(":");
+            if (pos == std::string::npos)
+                continue;
+
+            std::string value = line.substr(0, pos);
+            if (value == name) {
+                std::string n_value = line.substr(pos + 2);
+
+                using Mtype = std::remove_cvref_t<T>;
+                if constexpr (std::is_class_v<Mtype> && !Writable<Mtype>) {
+                    Mtype obj{};
+                    std::istringstream ss(n_value);
+                    load_class(ss, obj);
+                    return obj;
+                } else {
+                    return hp::str::from_string<Mtype>(n_value);
+                }
+            }
+        }
+    }
+
     // ----- Loading Data from structs/classes
     template <typename T>
     bool load_class(std::istream &file, T &value) {
