@@ -1,6 +1,7 @@
-name: Xavi
+name: Xavi\n
 age: 50
 ptr: hi
 iptr: 1337
 c: Z
 a: 3.14159
+bob: Bob { a: 0, b: 0, c: 0, d: 0, e: 0, f: 0, bob2: Bob2 { a: 0, b: 0, c: 0, d: 0, e: 0, f: 0 } }

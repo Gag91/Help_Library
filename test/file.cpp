@@ -3,6 +3,15 @@
 #include <memory>
 #include <string>
 
+struct Bob2 {
+    int a, b, c, d, e, f;
+};
+
+struct Bob {
+    int a, b, c, d, e, f;
+    Bob2 bob2;
+};
+
 struct User {
     std::string name;
     int age = 0;
@@ -10,13 +19,14 @@ struct User {
     std::unique_ptr<int> iptr;
     char c = ' ';
     double a = 0.0;
+    Bob bob;
 };
 
 int main() {
     hp::cls();
 
     User user{
-        "Xavi",
+        "Xavi\n",
         50,
         std::make_unique<std::string>("hi"),
         std::make_unique<int>(1337),
@@ -44,6 +54,9 @@ int main() {
     } else {
         std::cout << "User ptr: 'nullptr'\n";
     }
+
+    std::cout << "User Bob: " << user.bob.a << " : " << user.bob.b << " : " << user.bob.c << " : " << user.bob.d << " : " << user.bob.e << " : " << user.bob.f << "\n";
+    std::cout << "User Bob Bob2: " << user.bob.bob2.a << " : " << user.bob.bob2.b << " : " << user.bob.bob2.c << " : " << user.bob.bob2.d << " : " << user.bob.bob2.e << " : " << user.bob.bob2.f << "\n";
 
     return 0;
 }
