@@ -39,7 +39,29 @@ namespace hp {
             using DecayedT = std::remove_cvref_t<T>;
 
             if constexpr (std::is_same_v<DecayedT, std::string>) {
-                return str;
+                std::string result;
+                for (const char &c : str) {
+                    switch (c) {
+                        case '"':
+                            result += "\\\"";
+                            break;
+                        case '\\':
+                            result += "\\\\";
+                            break;
+                        case '\n':
+                            result += "\\n";
+                            break;
+                        case '\t':
+                            result += "\\t";
+                            break;
+                        case '\r':
+                            result += "\\r";
+                            break;
+                        default:
+                            result += c;
+                    }
+                }
+                return result;
 
             } else if constexpr (std::is_same_v<DecayedT, std::string_view>) {
                 return std::string_view(str);
