@@ -31,9 +31,12 @@ int main() {
         'Z',
         3.14159};
 
-    hp::save("test.txt", user);
     Color c;
-    hp::save<Color>("enum.txt", c);
+    User u;
+    if (!hp::load("test.txt", u)) {
+        std::println("Not founded");
+    }
+    std::println("Enum Value: {}", hp::str::to_string(u.color));
 
     return 0;
 }

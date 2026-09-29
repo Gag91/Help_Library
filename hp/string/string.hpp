@@ -122,6 +122,16 @@ namespace hp {
                 unsigned long val = std::stoul(str);
                 return static_cast<uint8_t>(val);
 
+            } else if constexpr (std::is_enum_v<DecayedT>) {
+                static constexpr auto members = std::define_static_array(
+                    std::meta::enumerators_of(^^T));
+
+                template for (constexpr auto m : members) {
+                    if (str == std::meta::identifier_of(m)) {
+                        return [:m:];
+                    }
+                }
+
             } else {
                 throw std::runtime_error("Unsupported type");
             }

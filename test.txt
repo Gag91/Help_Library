@@ -4,4 +4,4 @@ ptr: hi
 iptr: 1337
 c: Z
 a: 3.14159
-color: Red
+color: Blue

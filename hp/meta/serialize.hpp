@@ -107,6 +107,25 @@ namespace hp {
         return file.good();
     }
 
+    // ----- Loading data from enums
+    template <typename T>
+    bool load_enum(std::istream &file, T &value) {
+        static constexpr auto members = std::define_static_array(
+            std::meta::enumerators_of(^^T));
+
+        std::string token;
+        file >> token;
+        std::println("First Value: {}", token);
+
+        template for (constexpr auto m : members) {
+            if (token == std::meta::identifier_of(m)) {
+                value = [:m:];
+                return true;
+            }
+        }
+        return false;
+    }
+
     // ----- Saving data from structs/classes
     template <typename T>
     bool save_class(std::ostream &file, T &value) {
@@ -202,13 +221,16 @@ namespace hp {
                     } else if constexpr (std::is_class_v<Mtype> && !Writable<Mtype>) {
                         std::istringstream ss(n_value);
                         load_class(ss, value.[:m:]);
+                    } else if constexpr (std::is_enum_v<Mtype>) {
+                        std::istringstream ss(n_value);
+                        load_enum(ss, value.[:m:]);
                     } else {
                         value.[:m:] = hp::str::from_string<Mtype>(n_value);
                     }
                 }
             }
         }
-        return file.good();
+        return !file.bad();
     }
 
     // ----- Loading Specified Data
