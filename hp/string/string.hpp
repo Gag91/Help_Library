@@ -179,6 +179,15 @@ namespace hp {
             } else if constexpr (requires { std::to_string(value); }) {
                 return std::to_string(value);
 
+            } else if constexpr (std::is_enum_v<DecayedT>) {
+                static constexpr auto members = std::define_static_array(
+                    std::meta::enumerators_of(^^T));
+
+                template for (constexpr auto m : members) {
+                    if (value == [:m:]) {
+                        return std::string(std::meta::identifier_of(m));
+                    }
+                }
             } else {
                 throw std::runtime_error("Unsupported type");
             }

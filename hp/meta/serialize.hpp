@@ -19,59 +19,89 @@ namespace hp {
     template <typename T>
     bool save_class(std::ostream &file, T &value);
 
+    template <typename T>
+        requires std::is_enum_v<T>
+    bool save_enum(std::ostream &file, T &value);
+
+    template <typename T>
+    bool load_enum(std::istream &file, T &value);
+
     // ----- Saving data from structs/classes members
     template <typename T>
     bool save(const std::string &filename, T &value) {
-        static constexpr auto members = std::define_static_array(
-            std::meta::nonstatic_data_members_of(^^T, std::meta::access_context::unchecked()));
 
         std::ofstream file(filename, std::ios::out | std::ios::binary);
         if (!file.is_open())
             return false;
 
-        template for (constexpr auto m : members) {
-            using Mtype = [:std::meta::type_of(m):];
+        if constexpr (!std::is_enum_v<T>) {
+            static constexpr auto members = std::define_static_array(
+                std::meta::nonstatic_data_members_of(^^T, std::meta::access_context::unchecked()));
 
-            file << std::meta::identifier_of(m) << ": ";
+            template for (constexpr auto m : members) {
+                using Mtype = [:std::meta::type_of(m):];
 
-            if constexpr (is_smart_pointer_v<Mtype>) {
-                auto &&ptr = value.[:m:];
-                if (ptr) {
-                    file << *ptr << "\n";
-                } else {
-                    file << "nullptr\n";
-                }
-            } else if constexpr (std::is_same_v<Mtype, std::string>) {
-                std::string result;
-                for (const char &c : value.[:m:]) {
-                    switch (c) {
-                        case '"':
-                            result += "\\\"";
-                            break;
-                        case '\\':
-                            result += "\\\\";
-                            break;
-                        case '\n':
-                            result += "\\n";
-                            break;
-                        case '\t':
-                            result += "\\t";
-                            break;
-                        case '\r':
-                            result += "\\r";
-                            break;
-                        default:
-                            result += c;
+                file << std::meta::identifier_of(m) << ": ";
+
+                if constexpr (std::is_enum_v<Mtype>) {
+                    file << hp::str::to_string(value.[:m:]) << "\n";
+                } else if constexpr (is_smart_pointer_v<Mtype>) {
+                    auto &&ptr = value.[:m:];
+                    if (ptr) {
+                        file << *ptr << "\n";
+                    } else {
+                        file << "nullptr\n";
                     }
+                } else if constexpr (std::is_same_v<Mtype, std::string>) {
+                    std::string result;
+                    for (const char &c : value.[:m:]) {
+                        switch (c) {
+                            case '"':
+                                result += "\\\"";
+                                break;
+                            case '\\':
+                                result += "\\\\";
+                                break;
+                            case '\n':
+                                result += "\\n";
+                                break;
+                            case '\t':
+                                result += "\\t";
+                                break;
+                            case '\r':
+                                result += "\\r";
+                                break;
+                            default:
+                                result += c;
+                        }
+                    }
+                    file << result << "\n";
+                } else if constexpr (Writable<Mtype>) {
+                    file << value.[:m:] << "\n";
+                } else if constexpr (std::is_class_v<Mtype>) {
+                    save_class(file, value.[:m:]);
+                    file << "\n";
+                } else {
+                    file << value.[:m:] << "\n";
                 }
-                file << result << "\n";
-            } else if constexpr (Writable<Mtype>) {
-                file << value.[:m:] << "\n";
-            } else if constexpr (std::is_class_v<Mtype>) {
-                save_class(file, value.[:m:]);
-                file << "\n";
-            } else {
-                file << value.[:m:] << "\n";
+            }
+            return file.good();
+        } else {
+            save_enum(file, value);
+            return file.good();
+        }
+    }
+
+    // ----- Saving data from enums
+    template <typename T>
+        requires std::is_enum_v<T>
+    bool save_enum(std::ostream &file, T &value) {
+        static constexpr auto members = std::define_static_array(
+            std::meta::enumerators_of(^^T));
+
+        template for (constexpr auto m : members) {
+            if (value == [:m:]) {
+                file << std::meta::identifier_of(m) << "\n";
             }
         }
         return file.good();
