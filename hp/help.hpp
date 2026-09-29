@@ -7,6 +7,7 @@
 #include "hp/errors/error.hpp"
 #include "hp/fields/inputField.hpp"
 #include "hp/flows/flows.hpp"
+#include "hp/json-serializer/serialize.hpp"
 #include "hp/keyboard/keyboard.hpp"
 #include "hp/log/logger.hpp"
 #include "hp/math/math.hpp"

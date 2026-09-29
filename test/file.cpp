@@ -20,6 +20,15 @@ struct User {
     Color color;
 };
 
+struct Point {
+    int x;
+    int y;
+};
+struct Line {
+    Point start;
+    Point end;
+};
+
 int main() {
     hp::cls();
 
@@ -33,6 +42,14 @@ int main() {
 
     Color c;
     User u;
+    Line l{{1, 2}, {3, 4}};
+    hp::save("line.txt", l);
+
+    Line loaded;
+    hp::load("line.txt", loaded);
+    std::println("start: ({}, {})", loaded.start.x, loaded.start.y);
+    std::println("end:   ({}, {})", loaded.end.x, loaded.end.y);
+
     if (!hp::load("test.txt", u)) {
         std::println("Not founded");
     }
