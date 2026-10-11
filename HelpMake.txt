@@ -1,13 +1,13 @@
 Version: std=c++26
 Output: test.exe
-Compiler: gcc
+Compiler: g++
+InputFiles {
+    test/unit_tests.cpp
+}
 Flags {
-    -lstdc++exp
     -freflection
 }
-InputFiles {
-    test/file.cpp
-}
+
 Includes {
     .
 }

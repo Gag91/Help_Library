@@ -2,7 +2,7 @@
 
 #include <meta>
 #include <string_view>
- 
+
 namespace hp {
 
     // ----- Returns the type of a value
@@ -11,5 +11,4 @@ namespace hp {
         return std::meta::display_string_of(^^T);
     }
 
-    
-}
+} // namespace hp

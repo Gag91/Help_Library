@@ -502,5 +502,11 @@ int main() {
     test_to_string();
 
     std::cout << "All unit tests passed.\n";
+    std::string a = "Hello";
+    std::string b = "hello";
+    std::string c = "Hllo";
+    std::string d = "Helo";
+    std::println("'{}' and '{}' -> {}\n'{}' and '{}' -> {}\n'{}' and '{}' -> {}\n", a, b, hp::str::is_typo(a, b), a, c, hp::str::is_typo(a, c), a, d, hp::str::is_typo(a, d));
+
     return 0;
 }

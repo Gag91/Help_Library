@@ -1,4 +1,5 @@
 #pragma once
+
 #include "hp/other/type_traits.hpp"
 #include "hp/string/inputs.hpp"
 #include <filesystem>
@@ -18,7 +19,7 @@ namespace hp {
             std::string result;
             result.reserve(str.size());
             for (char c : str) {
-                result.push_back(static_cast<char>(std::toupper(static_cast<unsigned char>(c))));
+                result.push_back(static_cast<unsigned char>(std::toupper(static_cast<unsigned char>(c))));
             }
             return result;
         }
@@ -28,7 +29,7 @@ namespace hp {
             std::string result;
             result.reserve(str.size());
             for (char c : str) {
-                result.push_back(static_cast<char>(std::tolower(static_cast<unsigned char>(c))));
+                result.push_back(static_cast<unsigned char>(std::tolower(static_cast<unsigned char>(c))));
             }
             return result;
         }
@@ -201,6 +202,57 @@ namespace hp {
             } else {
                 throw std::runtime_error("Unsupported type");
             }
+        }
+
+        // ----- Similar String
+        template <typename T, typename U>
+        inline bool is_typo(T value1, U value2) {
+            std::string str1, str2;
+            if constexpr (!std::is_same_v<std::decay_t<T>, std::string>) {
+                str1 = hp::str::to_string(value1);
+                str2 = hp::str::to_string(value2);
+            } else {
+                str1 = value1;
+                str2 = value2;
+            }
+
+            if (str1 == str2)
+                return false;
+
+            std::string a = hp::str::to_lower(str1);
+            std::string b = hp::str::to_lower(str2);
+
+            if (a == b)
+                return true;
+
+            int errors = 0;
+            if (a.size() == b.size()) {
+
+                for (std::size_t i = 0; i < a.size(); ++i)
+                    if (a[i] != b[i] && ++errors >= 2)
+                        return false;
+                return true;
+            }
+            if (a.size() > b.size())
+                std::swap(a, b);
+            if (b.size() != a.size() + 1)
+                return false;
+
+            std::size_t i = 0, j = 0;
+            bool skipped = false;
+            while (i < a.size()) {
+                if (a[i] != b[j]) {
+                    if (skipped)
+                        return false;
+                    skipped = true;
+                    ++j;
+                } else {
+                    ++i;
+                    ++j;
+                }
+            }
+
+            return true;
         }
 
         namespace trim {
