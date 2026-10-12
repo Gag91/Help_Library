@@ -5,6 +5,7 @@ InputFiles {
     test/unit_tests.cpp
 }
 Flags {
+    -lstdc++exp
     -freflection
 }
 
