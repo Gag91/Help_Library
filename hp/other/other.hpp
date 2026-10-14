@@ -33,7 +33,7 @@ namespace hp {
 #else
         pclose(pipe);
 #endif
-        result.erase(std::remove(result.begin(), result.end(), '\n'), result.end());
+        std::erase(result, '\n');
         return result.empty() ? "ERROR" : result;
     }
 
