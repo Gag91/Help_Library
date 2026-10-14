@@ -321,7 +321,7 @@ namespace hp {
         int consoleWidth = 80;
 #endif
         int msgLen = msg.length() + 2;
-        int totalWidth = consoleWidth;
+        std::size_t totalWidth = consoleWidth;
         int sideLen = (totalWidth - msgLen) / 2;
 
         std::string result;
