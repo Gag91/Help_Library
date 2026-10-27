@@ -12,6 +12,7 @@
 #include "hp/math/math.hpp"
 #include "hp/meta/serialize.hpp"
 #include "hp/other/type_traits.hpp"
+#include "hp/platform/console.hpp"
 #include "hp/random/random.hpp"
 #include "hp/serializer/serialize.hpp"
 #include "hp/string/string.hpp"

@@ -1,12 +1,6 @@
 #pragma once
 
-#include <windows.h>
-#include <conio.h>
-#include <iostream>
-
 namespace hp {
-
-    // ----- Pressed namespace
     namespace KeyIsPressed {
         inline bool A = false, B = false, C = false, D = false, E = false;
         inline bool F = false, G = false, H = false, I = false, J = false;
@@ -27,5 +21,5 @@ namespace hp {
         inline bool F5 = false, F6 = false, F7 = false, F8 = false;
         inline bool F9 = false, F10 = false, F11 = false, F12 = false;
         inline bool L_Mouse = false, R_Mouse = false;
-        }
-    }
+    } // namespace KeyIsPressed
+} // namespace hp

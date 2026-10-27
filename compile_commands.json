@@ -1,0 +1,7 @@
+[
+  {
+    "directory": "C:/Github/repos/Help_Library",
+    "command": "g++ -fdiagnostics-color=always -xc++ -std=c++26 -lstdc++exp -I. -c test/unit_tests.cpp -o build/HelpMake/gcc/obj/unit_tests.o -MMD",
+    "file": "test/unit_tests.cpp"
+  }
+]

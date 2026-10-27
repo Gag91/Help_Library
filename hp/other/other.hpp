@@ -2,39 +2,26 @@
 
 #include "hp/colors/color.hpp"
 #include "hp/other/print.hpp"
-#include <iostream>
-#ifdef _WIN32
-#include <windows.h>
-#endif
+#include "hp/platform/console.hpp"
+
 #include <cstdlib>
 #include <filesystem>
 #include <fstream>
+#include <iostream>
+#include <string>
 
 namespace fs = std::filesystem;
 
 namespace hp {
 
     inline std::string getIp() {
-        char buffer[128];
-        std::string result;
-#ifdef _WIN32
-        FILE *pipe = _popen("curl -s ifconfig.me", "r");
-#else
-        FILE *pipe = popen("curl -s ifconfig.me", "r");
-#endif
-        if (!pipe) {
+        try {
+            std::string result = hp::platform::popen_exec("curl -s ifconfig.me");
+            std::erase(result, '\n');
+            return result.empty() ? "ERROR" : result;
+        } catch (...) {
             return "ERROR";
         }
-        while (fgets(buffer, sizeof(buffer), pipe) != NULL) {
-            result += buffer;
-        }
-#ifdef _WIN32
-        _pclose(pipe);
-#else
-        pclose(pipe);
-#endif
-        std::erase(result, '\n');
-        return result.empty() ? "ERROR" : result;
     }
 
     inline void delln(bool currentln = true) {
@@ -46,11 +33,7 @@ namespace hp {
     }
 
     inline void cls() {
-#ifdef _WIN32
-        system("cls");
-#else
-        system("clear");
-#endif
+        hp::platform::clear_screen();
     }
 
     inline void clsClear() {
@@ -70,9 +53,8 @@ namespace hp {
 
         bool write(const std::string &file, const std::string &content) {
             std::ofstream out(file);
-            if (!out.is_open()) {
+            if (!out.is_open())
                 return false;
-            }
             out << content;
             out.close();
             return true;
@@ -80,9 +62,8 @@ namespace hp {
 
         bool f_append(const std::string &file, const std::string &content) {
             std::ofstream out(file, std::ios::app);
-            if (!out.is_open()) {
+            if (!out.is_open())
                 return false;
-            }
             out << content;
             out.close();
             return true;
@@ -90,11 +71,9 @@ namespace hp {
 
         std::string read(const std::string &file) const {
             std::ifstream in(file);
-            if (!in.is_open()) {
+            if (!in.is_open())
                 return "";
-            }
-            std::string content((std::istreambuf_iterator<char>(in)),
-                                std::istreambuf_iterator<char>());
+            std::string content((std::istreambuf_iterator<char>(in)), std::istreambuf_iterator<char>());
             in.close();
             return content;
         }
@@ -103,7 +82,7 @@ namespace hp {
             return fs::exists(file);
         }
 
-        size_t getSize(const std::string &file) const {
+        std::size_t getSize(const std::string &file) const {
             return fs::file_size(file);
         }
     };
@@ -141,7 +120,7 @@ namespace hp {
         } else if (a == 1) {
             std::exit(1);
         } else {
-            throw std::runtime_error("Intenger must be 0 or 1");
+            throw std::runtime_error("Integer must be 0 or 1");
         }
     }
 
@@ -153,17 +132,12 @@ namespace hp {
     }
 
     inline void setCenter(int row, int width) {
-        CONSOLE_SCREEN_BUFFER_INFO csbi;
-        GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE), &csbi);
-        int consoleWidth = csbi.srWindow.Right - csbi.srWindow.Left + 1;
+        int consoleWidth = hp::platform::console_width();
         int col = (consoleWidth - width) / 2;
         std::cout << "\033[" << row << ";" << col << "H";
     }
 
     inline void enableUTF8() {
-#ifdef _WIN32
-        SetConsoleOutputCP(CP_UTF8);
-        SetConsoleCP(CP_UTF8);
-#endif
+        hp::platform::enable_utf8();
     }
 } // namespace hp

@@ -4,33 +4,31 @@
 #include "hp/colors/color.hpp"
 #include "hp/keyboard/keyboard.hpp"
 #include "hp/menu/Strmenu.hpp"
+#include "hp/platform/console.hpp"
+#include "hp/string/string.hpp"
 #include "hp/time/time.hpp"
-#include <iostream>
-#include <limits>
-#include <vector>
 
+#include <iostream>
+#include <string>
+#include <vector>
 
 namespace hp {
 
-    // ----- Centered Field Menu navigateable whit arrow keys
-    inline int CenteredFieldMenu(const std::string &t, const std::vector<std::string> &o, hp color = hp::WHITE, bool showNumbers = true) {
-        while (_kbhit())
-            _getch();
+    inline int CenteredFieldMenu(const std::string &t, const std::vector<std::string> &o, hp::Color color = hp::WHITE, bool showNumbers = true) {
+        (void)showNumbers;
+        hp::platform::flush_input();
         int index = 0;
         int maxindex = static_cast<int>(o.size()) - 1;
         int prevIndex = -1;
 
-        CONSOLE_SCREEN_BUFFER_INFO csbi;
-        GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE), &csbi);
-        int consoleWidth = csbi.srWindow.Right - csbi.srWindow.Left + 1;
+        int consoleWidth = hp::platform::console_width();
 
         int maxOptionWidth = 0;
         for (auto &opt : o) {
-            int w = opt.size() + 6;
+            int w = static_cast<int>(opt.size()) + 6;
             if (w > maxOptionWidth)
                 maxOptionWidth = w;
         }
-
         int totalWidth = maxOptionWidth;
         if (totalWidth < 20)
             totalWidth = 20;
@@ -39,7 +37,7 @@ namespace hp {
             col = 1;
 
         std::string sep = std::string(totalWidth, '=');
-        int titlePadding = (totalWidth - t.size()) / 2;
+        int titlePadding = (totalWidth - static_cast<int>(t.size())) / 2;
         std::cout << "\033[3;" << col << "H" << sep;
         std::cout << "\033[4;" << col << "H" << std::string(titlePadding, ' ') << t;
         std::cout << "\033[5;" << col << "H" << sep;
@@ -58,7 +56,6 @@ namespace hp {
                         std::cout << "  " << (i + 1) << ". " << o[i];
                     }
                 }
-
                 std::cout.flush();
                 prevIndex = index;
             }
@@ -68,7 +65,7 @@ namespace hp {
             } else if (hp::KeyIsPressed::Down) {
                 index = (index < maxindex) ? index + 1 : 0;
             } else if (hp::KeyIsPressed::Enter) {
-                std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+                hp::platform::disable_raw();
                 std::cout << '\n';
                 return index;
             }

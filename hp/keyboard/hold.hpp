@@ -1,9 +1,5 @@
 #pragma once
 
-#include <windows.h>
-#include <conio.h>
-#include <iostream>
-
 namespace hp {
     namespace KeyIsHold {
         inline bool A = false, B = false, C = false, D = false, E = false;
@@ -24,5 +20,5 @@ namespace hp {
         inline bool F1 = false, F2 = false, F3 = false, F4 = false;
         inline bool F5 = false, F6 = false, F7 = false, F8 = false;
         inline bool F9 = false, F10 = false, F11 = false, F12 = false;
-        }
-    }
+    } // namespace KeyIsHold
+} // namespace hp

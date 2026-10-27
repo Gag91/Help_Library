@@ -58,8 +58,8 @@ class Random {
         }
     }
 
-    [[nodiscard]] static inline hp randomColor() {
+    [[nodiscard]] static inline hp::Color randomColor() {
         int index = Random::rand(0, hp::COLOR_COUNT - 1);
-        return static_cast<hp>(index);
+        return static_cast<hp::Color>(index);
     }
 };

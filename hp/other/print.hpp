@@ -1,30 +1,27 @@
 #pragma once
 
+#include "hp/platform/console.hpp"
+
 #include <iostream>
-#ifdef _WIN32
-#include <windows.h>
-#endif
+#include <string>
+
 namespace hp {
 
     inline void print(int row, int col, int width, const std::string &msg = "") {
+        (void)width;
         std::cout << "\033[" << row << ";" << col << "H";
         std::cout << msg;
     }
 
     inline void println(int row, int col, int width, const std::string &msg = "") {
+        (void)width;
         std::cout << "\033[" << row << ";" << col << "H";
         std::cout << msg << std::endl;
     }
 
     inline void printCenter(int row, const std::string &msg = "") {
-#ifdef _WIN32
-        CONSOLE_SCREEN_BUFFER_INFO csbi;
-        GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE), &csbi);
-        int consoleWidth = csbi.srWindow.Right - csbi.srWindow.Left + 1;
-#else
-        int consoleWidth = 80;
-#endif
-        int col = ((consoleWidth - msg.length())) / 2;
+        int consoleWidth = hp::platform::console_width();
+        int col = (consoleWidth - static_cast<int>(msg.length())) / 2;
         std::cout << "\033[" << row << ";" << col << "H";
         std::cout << msg;
         std::cout.flush();

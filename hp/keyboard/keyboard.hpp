@@ -1,16 +1,20 @@
 #pragma once
 
-#include <windows.h>
-#include <conio.h>
-#include <map>
-#include <unordered_map>
-#include <iostream>
-#include "hp/keyboard/pressed.hpp"
 #include "hp/keyboard/hold.hpp"
+#include "hp/keyboard/pressed.hpp"
 #include "hp/keyboard/released.hpp"
 #include "hp/keyboard/repeat.hpp"
+#include "hp/platform/console.hpp"
 
-// ----- Defines 
+#include <cstddef>
+#include <iostream>
+#include <string>
+#include <unordered_map>
+
+#ifdef _WIN32
+#include <windows.h>
+#endif
+
 #ifndef VK_Space
 #define VK_Space VK_SPACE
 #endif
@@ -74,86 +78,327 @@
 
 namespace hp {
 
-    // ----- Keys
     enum class Key {
-        A = 'A', B = 'B', C = 'C', D = 'D', E = 'E',
-        F = 'F', G = 'G', H = 'H', I = 'I', J = 'J',
-        K = 'K', L = 'L', M = 'M', N = 'N', O = 'O',
-        P = 'P', Q = 'Q', R = 'R', S = 'S', T = 'T',
-        U = 'U', V = 'V', W = 'W', X = 'X', Y = 'Y',
+        A = 'A',
+        B = 'B',
+        C = 'C',
+        D = 'D',
+        E = 'E',
+        F = 'F',
+        G = 'G',
+        H = 'H',
+        I = 'I',
+        J = 'J',
+        K = 'K',
+        L = 'L',
+        M = 'M',
+        N = 'N',
+        O = 'O',
+        P = 'P',
+        Q = 'Q',
+        R = 'R',
+        S = 'S',
+        T = 'T',
+        U = 'U',
+        V = 'V',
+        W = 'W',
+        X = 'X',
+        Y = 'Y',
         Z = 'Z',
-        Num0 = '0', Num1 = '1', Num2 = '2', Num3 = '3',
-        Num4 = '4', Num5 = '5', Num6 = '6', Num7 = '7',
-        Num8 = '8', Num9 = '9',
-        Escape = VK_ESCAPE, Enter = VK_RETURN, Space = VK_SPACE,
-        Tab = VK_TAB, Backspace = VK_BACK, Delete = VK_DELETE,
-        Insert = VK_INSERT, Home = VK_HOME, End = VK_END,
-        PageUp = VK_PRIOR, PageDown = VK_NEXT,
-        Up = VK_UP, Down = VK_DOWN, Left = VK_LEFT, Right = VK_RIGHT,
-        Shift = VK_SHIFT, Control = VK_CONTROL, Alt = VK_MENU,
-        F1 = VK_F1, F2 = VK_F2, F3 = VK_F3, F4 = VK_F4,
-        F5 = VK_F5, F6 = VK_F6, F7 = VK_F7, F8 = VK_F8,
-        F9 = VK_F9, F10 = VK_F10, F11 = VK_F11, F12 = VK_F12
-        };
+        Num0 = '0',
+        Num1 = '1',
+        Num2 = '2',
+        Num3 = '3',
+        Num4 = '4',
+        Num5 = '5',
+        Num6 = '6',
+        Num7 = '7',
+        Num8 = '8',
+        Num9 = '9',
+        Escape = 0x1B,
+        Enter = 0x0D,
+        Space = 0x20,
+        Tab = 0x09,
+        Backspace = 0x08,
+        Delete = 0x2E,
+        Insert = 0x2D,
+        Home = 0x24,
+        End = 0x23,
+        PageUp = 0x21,
+        PageDown = 0x22,
+        Up = 0x26,
+        Down = 0x28,
+        Left = 0x25,
+        Right = 0x27,
+        Shift = 0x10,
+        Control = 0x11,
+        Alt = 0x12,
+        F1 = 0x70,
+        F2 = 0x71,
+        F3 = 0x72,
+        F4 = 0x73,
+        F5 = 0x74,
+        F6 = 0x75,
+        F7 = 0x76,
+        F8 = 0x77,
+        F9 = 0x78,
+        F10 = 0x79,
+        F11 = 0x7A,
+        F12 = 0x7B
+    };
 
-    // ----- Main Class
     class Keyboard {
-    private:
+      private:
         static inline std::unordered_map<int, bool> previousStates;
         static inline std::unordered_map<int, bool> currentStates;
 
-    public:
-
-        // Update the keys
+      public:
         static void update() {
+#ifdef _WIN32
             for (int i = 0; i < 256; i++) {
                 previousStates[i] = currentStates[i];
                 currentStates[i] = (GetAsyncKeyState(i) & 0x8000) != 0;
-                }
             }
+#endif
+        }
 
-        // Check if 'key' is pressed
         static bool isPressed(int key) {
+#ifdef _WIN32
             return currentStates[key] && !previousStates[key];
-            }
+#else
+            (void)key;
+            return false;
+#endif
+        }
 
-        // Check if 'key' is hold
         static bool isHold(int key) {
+#ifdef _WIN32
             return currentStates[key];
-            }
+#else
+            (void)key;
+            return false;
+#endif
+        }
 
-        // Check if 'key' is released
         static bool isReleased(int key) {
+#ifdef _WIN32
             return !currentStates[key] && previousStates[key];
-            }
+#else
+            (void)key;
+            return false;
+#endif
+        }
 
-        // Check if 'key' is down
         static bool isDown(int key) {
             return isHold(key) || isPressed(key);
-            }
-        };
+        }
+    };
 
-    // ----------- MOST IMPORTANT FUNCTION !!!! This function is required to make all other keyboard functions WORKS!!!! ---------- //
+    inline void clear_pressed_flags() {
+        KeyIsPressed::A = KeyIsPressed::B = KeyIsPressed::C = false;
+        KeyIsPressed::D = KeyIsPressed::E = KeyIsPressed::F = false;
+        KeyIsPressed::G = KeyIsPressed::H = KeyIsPressed::I = false;
+        KeyIsPressed::J = KeyIsPressed::K = KeyIsPressed::L = false;
+        KeyIsPressed::M = KeyIsPressed::N = KeyIsPressed::O = false;
+        KeyIsPressed::P = KeyIsPressed::Q = KeyIsPressed::R = false;
+        KeyIsPressed::S = KeyIsPressed::T = KeyIsPressed::U = false;
+        KeyIsPressed::V = KeyIsPressed::W = KeyIsPressed::X = false;
+        KeyIsPressed::Y = KeyIsPressed::Z = false;
+        KeyIsPressed::Num0 = KeyIsPressed::Num1 = false;
+        KeyIsPressed::Num2 = KeyIsPressed::Num3 = false;
+        KeyIsPressed::Num4 = KeyIsPressed::Num5 = false;
+        KeyIsPressed::Num6 = KeyIsPressed::Num7 = false;
+        KeyIsPressed::Num8 = KeyIsPressed::Num9 = false;
+        KeyIsPressed::Up = KeyIsPressed::Down = false;
+        KeyIsPressed::Left = KeyIsPressed::Right = false;
+        KeyIsPressed::Escape = KeyIsPressed::Enter = false;
+        KeyIsPressed::Space = KeyIsPressed::Tab = false;
+        KeyIsPressed::Backspace = KeyIsPressed::Delete = false;
+        KeyIsPressed::Insert = KeyIsPressed::Home = false;
+        KeyIsPressed::End = KeyIsPressed::PageUp = false;
+        KeyIsPressed::PageDown = KeyIsPressed::Shift = false;
+        KeyIsPressed::Control = KeyIsPressed::Alt = false;
+        KeyIsPressed::F1 = KeyIsPressed::F2 = false;
+        KeyIsPressed::F3 = KeyIsPressed::F4 = false;
+        KeyIsPressed::F5 = KeyIsPressed::F6 = false;
+        KeyIsPressed::F7 = KeyIsPressed::F8 = false;
+        KeyIsPressed::F9 = KeyIsPressed::F10 = false;
+        KeyIsPressed::F11 = KeyIsPressed::F12 = false;
+        KeyIsPressed::L_Mouse = KeyIsPressed::R_Mouse = false;
+    }
+
+    inline void set_letter_flag(unsigned char c) {
+        switch (c) {
+            case 'A':
+            case 'a':
+                KeyIsPressed::A = true;
+                break;
+            case 'B':
+            case 'b':
+                KeyIsPressed::B = true;
+                break;
+            case 'C':
+            case 'c':
+                KeyIsPressed::C = true;
+                break;
+            case 'D':
+            case 'd':
+                KeyIsPressed::D = true;
+                break;
+            case 'E':
+            case 'e':
+                KeyIsPressed::E = true;
+                break;
+            case 'F':
+            case 'f':
+                KeyIsPressed::F = true;
+                break;
+            case 'G':
+            case 'g':
+                KeyIsPressed::G = true;
+                break;
+            case 'H':
+            case 'h':
+                KeyIsPressed::H = true;
+                break;
+            case 'I':
+            case 'i':
+                KeyIsPressed::I = true;
+                break;
+            case 'J':
+            case 'j':
+                KeyIsPressed::J = true;
+                break;
+            case 'K':
+            case 'k':
+                KeyIsPressed::K = true;
+                break;
+            case 'L':
+            case 'l':
+                KeyIsPressed::L = true;
+                break;
+            case 'M':
+            case 'm':
+                KeyIsPressed::M = true;
+                break;
+            case 'N':
+            case 'n':
+                KeyIsPressed::N = true;
+                break;
+            case 'O':
+            case 'o':
+                KeyIsPressed::O = true;
+                break;
+            case 'P':
+            case 'p':
+                KeyIsPressed::P = true;
+                break;
+            case 'Q':
+            case 'q':
+                KeyIsPressed::Q = true;
+                break;
+            case 'R':
+            case 'r':
+                KeyIsPressed::R = true;
+                break;
+            case 'S':
+            case 's':
+                KeyIsPressed::S = true;
+                break;
+            case 'T':
+            case 't':
+                KeyIsPressed::T = true;
+                break;
+            case 'U':
+            case 'u':
+                KeyIsPressed::U = true;
+                break;
+            case 'V':
+            case 'v':
+                KeyIsPressed::V = true;
+                break;
+            case 'W':
+            case 'w':
+                KeyIsPressed::W = true;
+                break;
+            case 'X':
+            case 'x':
+                KeyIsPressed::X = true;
+                break;
+            case 'Y':
+            case 'y':
+                KeyIsPressed::Y = true;
+                break;
+            case 'Z':
+            case 'z':
+                KeyIsPressed::Z = true;
+                break;
+            case '0':
+                KeyIsPressed::Num0 = true;
+                break;
+            case '1':
+                KeyIsPressed::Num1 = true;
+                break;
+            case '2':
+                KeyIsPressed::Num2 = true;
+                break;
+            case '3':
+                KeyIsPressed::Num3 = true;
+                break;
+            case '4':
+                KeyIsPressed::Num4 = true;
+                break;
+            case '5':
+                KeyIsPressed::Num5 = true;
+                break;
+            case '6':
+                KeyIsPressed::Num6 = true;
+                break;
+            case '7':
+                KeyIsPressed::Num7 = true;
+                break;
+            case '8':
+                KeyIsPressed::Num8 = true;
+                break;
+            case '9':
+                KeyIsPressed::Num9 = true;
+                break;
+            default:
+                break;
+        }
+    }
+
     inline void updateKeyboard() {
+        clear_pressed_flags();
+#ifdef _WIN32
         Keyboard::update();
 
-        // ----- Updates Pressed Function
-#define UPDATE_PRESSED(key) KeyIsPressed::key = Keyboard::isPressed(VK_##key)
-#define UPDATE_PRESSED_LETTER(key) KeyIsPressed::key = Keyboard::isPressed(#key[0])
-
-        UPDATE_PRESSED_LETTER(A); UPDATE_PRESSED_LETTER(B);
-        UPDATE_PRESSED_LETTER(C); UPDATE_PRESSED_LETTER(D);
-        UPDATE_PRESSED_LETTER(E); UPDATE_PRESSED_LETTER(F);
-        UPDATE_PRESSED_LETTER(G); UPDATE_PRESSED_LETTER(H);
-        UPDATE_PRESSED_LETTER(I); UPDATE_PRESSED_LETTER(J);
-        UPDATE_PRESSED_LETTER(K); UPDATE_PRESSED_LETTER(L);
-        UPDATE_PRESSED_LETTER(M); UPDATE_PRESSED_LETTER(N);
-        UPDATE_PRESSED_LETTER(O); UPDATE_PRESSED_LETTER(P);
-        UPDATE_PRESSED_LETTER(Q); UPDATE_PRESSED_LETTER(R);
-        UPDATE_PRESSED_LETTER(S); UPDATE_PRESSED_LETTER(T);
-        UPDATE_PRESSED_LETTER(U); UPDATE_PRESSED_LETTER(V);
-        UPDATE_PRESSED_LETTER(W); UPDATE_PRESSED_LETTER(X);
-        UPDATE_PRESSED_LETTER(Y); UPDATE_PRESSED_LETTER(Z);
+        KeyIsPressed::A = Keyboard::isPressed('A');
+        KeyIsPressed::B = Keyboard::isPressed('B');
+        KeyIsPressed::C = Keyboard::isPressed('C');
+        KeyIsPressed::D = Keyboard::isPressed('D');
+        KeyIsPressed::E = Keyboard::isPressed('E');
+        KeyIsPressed::F = Keyboard::isPressed('F');
+        KeyIsPressed::G = Keyboard::isPressed('G');
+        KeyIsPressed::H = Keyboard::isPressed('H');
+        KeyIsPressed::I = Keyboard::isPressed('I');
+        KeyIsPressed::J = Keyboard::isPressed('J');
+        KeyIsPressed::K = Keyboard::isPressed('K');
+        KeyIsPressed::L = Keyboard::isPressed('L');
+        KeyIsPressed::M = Keyboard::isPressed('M');
+        KeyIsPressed::N = Keyboard::isPressed('N');
+        KeyIsPressed::O = Keyboard::isPressed('O');
+        KeyIsPressed::P = Keyboard::isPressed('P');
+        KeyIsPressed::Q = Keyboard::isPressed('Q');
+        KeyIsPressed::R = Keyboard::isPressed('R');
+        KeyIsPressed::S = Keyboard::isPressed('S');
+        KeyIsPressed::T = Keyboard::isPressed('T');
+        KeyIsPressed::U = Keyboard::isPressed('U');
+        KeyIsPressed::V = Keyboard::isPressed('V');
+        KeyIsPressed::W = Keyboard::isPressed('W');
+        KeyIsPressed::X = Keyboard::isPressed('X');
+        KeyIsPressed::Y = Keyboard::isPressed('Y');
+        KeyIsPressed::Z = Keyboard::isPressed('Z');
 
         KeyIsPressed::Num0 = Keyboard::isPressed('0');
         KeyIsPressed::Num1 = Keyboard::isPressed('1');
@@ -166,274 +411,370 @@ namespace hp {
         KeyIsPressed::Num8 = Keyboard::isPressed('8');
         KeyIsPressed::Num9 = Keyboard::isPressed('9');
 
-        UPDATE_PRESSED(Up); UPDATE_PRESSED(Down);
-        UPDATE_PRESSED(Left); UPDATE_PRESSED(Right);
-        UPDATE_PRESSED(Escape); UPDATE_PRESSED(Enter);
-        UPDATE_PRESSED(Space); UPDATE_PRESSED(Tab);
-        UPDATE_PRESSED(Backspace); UPDATE_PRESSED(Delete);
-        UPDATE_PRESSED(Insert); UPDATE_PRESSED(Home);
-        UPDATE_PRESSED(End); UPDATE_PRESSED(PageUp);
-        UPDATE_PRESSED(PageDown);
-        UPDATE_PRESSED(Shift); UPDATE_PRESSED(Control);
-        UPDATE_PRESSED(Alt); UPDATE_PRESSED(L_Mouse);
-        UPDATE_PRESSED(R_Mouse);
+        KeyIsPressed::Up = Keyboard::isPressed(VK_UP);
+        KeyIsPressed::Down = Keyboard::isPressed(VK_DOWN);
+        KeyIsPressed::Left = Keyboard::isPressed(VK_LEFT);
+        KeyIsPressed::Right = Keyboard::isPressed(VK_RIGHT);
+        KeyIsPressed::Escape = Keyboard::isPressed(VK_ESCAPE);
+        KeyIsPressed::Enter = Keyboard::isPressed(VK_RETURN);
+        KeyIsPressed::Space = Keyboard::isPressed(VK_SPACE);
+        KeyIsPressed::Tab = Keyboard::isPressed(VK_TAB);
+        KeyIsPressed::Backspace = Keyboard::isPressed(VK_BACK);
+        KeyIsPressed::Delete = Keyboard::isPressed(VK_DELETE);
+        KeyIsPressed::Insert = Keyboard::isPressed(VK_INSERT);
+        KeyIsPressed::Home = Keyboard::isPressed(VK_HOME);
+        KeyIsPressed::End = Keyboard::isPressed(VK_END);
+        KeyIsPressed::PageUp = Keyboard::isPressed(VK_PRIOR);
+        KeyIsPressed::PageDown = Keyboard::isPressed(VK_NEXT);
+        KeyIsPressed::Shift = Keyboard::isPressed(VK_SHIFT);
+        KeyIsPressed::Control = Keyboard::isPressed(VK_CONTROL);
+        KeyIsPressed::Alt = Keyboard::isPressed(VK_MENU);
+        KeyIsPressed::L_Mouse = Keyboard::isPressed(VK_LBUTTON);
+        KeyIsPressed::R_Mouse = Keyboard::isPressed(VK_RBUTTON);
 
-        UPDATE_PRESSED(F1); UPDATE_PRESSED(F2);
-        UPDATE_PRESSED(F3); UPDATE_PRESSED(F4);
-        UPDATE_PRESSED(F5); UPDATE_PRESSED(F6);
-        UPDATE_PRESSED(F7); UPDATE_PRESSED(F8);
-        UPDATE_PRESSED(F9); UPDATE_PRESSED(F10);
-        UPDATE_PRESSED(F11); UPDATE_PRESSED(F12);
-
-        // ----- Updates Hold keys Function
-#define UPDATE_HOLD(key) KeyIsHold::key = Keyboard::isHold(VK_##key)
-#define UPDATE_HOLD_LETTER(key) KeyIsHold::key = Keyboard::isHold(#key[0])
-
-        UPDATE_HOLD_LETTER(A); UPDATE_HOLD_LETTER(B);
-        UPDATE_HOLD_LETTER(C); UPDATE_HOLD_LETTER(D);
-        UPDATE_HOLD_LETTER(E); UPDATE_HOLD_LETTER(F);
-        UPDATE_HOLD_LETTER(G); UPDATE_HOLD_LETTER(H);
-        UPDATE_HOLD_LETTER(I); UPDATE_HOLD_LETTER(J);
-        UPDATE_HOLD_LETTER(K); UPDATE_HOLD_LETTER(L);
-        UPDATE_HOLD_LETTER(M); UPDATE_HOLD_LETTER(N);
-        UPDATE_HOLD_LETTER(O); UPDATE_HOLD_LETTER(P);
-        UPDATE_HOLD_LETTER(Q); UPDATE_HOLD_LETTER(R);
-        UPDATE_HOLD_LETTER(S); UPDATE_HOLD_LETTER(T);
-        UPDATE_HOLD_LETTER(U); UPDATE_HOLD_LETTER(V);
-        UPDATE_HOLD_LETTER(W); UPDATE_HOLD_LETTER(X);
-        UPDATE_HOLD_LETTER(Y); UPDATE_HOLD_LETTER(Z);
-
-        KeyIsHold::Num0 = Keyboard::isHold('0');
-        KeyIsHold::Num1 = Keyboard::isHold('1');
-        KeyIsHold::Num2 = Keyboard::isHold('2');
-        KeyIsHold::Num3 = Keyboard::isHold('3');
-        KeyIsHold::Num4 = Keyboard::isHold('4');
-        KeyIsHold::Num5 = Keyboard::isHold('5');
-        KeyIsHold::Num6 = Keyboard::isHold('6');
-        KeyIsHold::Num7 = Keyboard::isHold('7');
-        KeyIsHold::Num8 = Keyboard::isHold('8');
-        KeyIsHold::Num9 = Keyboard::isHold('9');
-
-        UPDATE_HOLD(Up); UPDATE_HOLD(Down);
-        UPDATE_HOLD(Left); UPDATE_HOLD(Right);
-        UPDATE_HOLD(Escape); UPDATE_HOLD(Enter);
-        UPDATE_HOLD(Space); UPDATE_HOLD(Tab);
-        UPDATE_HOLD(Backspace); UPDATE_HOLD(Delete);
-        UPDATE_HOLD(Insert); UPDATE_HOLD(Home);
-        UPDATE_HOLD(End); UPDATE_HOLD(PageUp);
-        UPDATE_HOLD(PageDown);
-        UPDATE_HOLD(Shift); UPDATE_HOLD(Control);
-        UPDATE_HOLD(Alt);
-
-        UPDATE_HOLD(F1); UPDATE_HOLD(F2);
-        UPDATE_HOLD(F3); UPDATE_HOLD(F4);
-        UPDATE_HOLD(F5); UPDATE_HOLD(F6);
-        UPDATE_HOLD(F7); UPDATE_HOLD(F8);
-        UPDATE_HOLD(F9); UPDATE_HOLD(F10);
-        UPDATE_HOLD(F11); UPDATE_HOLD(F12);
-
-        KeyIsReleased::Up = Keyboard::isReleased(VK_UP);
-        KeyIsReleased::Down = Keyboard::isReleased(VK_DOWN);
-        KeyIsReleased::Left = Keyboard::isReleased(VK_LEFT);
-        KeyIsReleased::Right = Keyboard::isReleased(VK_RIGHT);
-        KeyIsReleased::Escape = Keyboard::isReleased(VK_ESCAPE);
-        KeyIsReleased::Enter = Keyboard::isReleased(VK_RETURN);
-        KeyIsReleased::Space = Keyboard::isReleased(VK_SPACE);
-        KeyIsReleased::Shift = Keyboard::isReleased(VK_SHIFT);
-        KeyIsReleased::Control = Keyboard::isReleased(VK_CONTROL);
-        KeyIsReleased::Alt = Keyboard::isReleased(VK_MENU);
-        KeyIsReleased::L_Mouse = Keyboard::isReleased(VK_LBUTTON);
-        KeyIsReleased::R_Mouse = Keyboard::isReleased(VK_RBUTTON);
-
-#undef UPDATE_PRESSED
-#undef UPDATE_PRESSED_LETTER
-#undef UPDATE_HOLD
-#undef UPDATE_HOLD_LETTER
+        KeyIsPressed::F1 = Keyboard::isPressed(VK_F1);
+        KeyIsPressed::F2 = Keyboard::isPressed(VK_F2);
+        KeyIsPressed::F3 = Keyboard::isPressed(VK_F3);
+        KeyIsPressed::F4 = Keyboard::isPressed(VK_F4);
+        KeyIsPressed::F5 = Keyboard::isPressed(VK_F5);
+        KeyIsPressed::F6 = Keyboard::isPressed(VK_F6);
+        KeyIsPressed::F7 = Keyboard::isPressed(VK_F7);
+        KeyIsPressed::F8 = Keyboard::isPressed(VK_F8);
+        KeyIsPressed::F9 = Keyboard::isPressed(VK_F9);
+        KeyIsPressed::F10 = Keyboard::isPressed(VK_F10);
+        KeyIsPressed::F11 = Keyboard::isPressed(VK_F11);
+        KeyIsPressed::F12 = Keyboard::isPressed(VK_F12);
+#else
+        std::string input = hp::platform::read_all_available();
+        std::size_t i = 0;
+        while (i < input.size()) {
+            unsigned char c = static_cast<unsigned char>(input[i]);
+            if (c == 27) {
+                if (i + 2 < input.size() && input[i + 1] == '[') {
+                    char code = input[i + 2];
+                    switch (code) {
+                        case 'A':
+                            KeyIsPressed::Up = true;
+                            break;
+                        case 'B':
+                            KeyIsPressed::Down = true;
+                            break;
+                        case 'C':
+                            KeyIsPressed::Right = true;
+                            break;
+                        case 'D':
+                            KeyIsPressed::Left = true;
+                            break;
+                        case 'H':
+                            KeyIsPressed::Home = true;
+                            break;
+                        case 'F':
+                            KeyIsPressed::End = true;
+                            break;
+                        default:
+                            break;
+                    }
+                    i += 3;
+                } else {
+                    KeyIsPressed::Escape = true;
+                    i += 1;
+                }
+            } else if (c == '\r' || c == '\n') {
+                KeyIsPressed::Enter = true;
+                i += 1;
+            } else if (c == '\t') {
+                KeyIsPressed::Tab = true;
+                i += 1;
+            } else if (c == 127 || c == 8) {
+                KeyIsPressed::Backspace = true;
+                i += 1;
+            } else if (c == ' ') {
+                KeyIsPressed::Space = true;
+                i += 1;
+            } else {
+                set_letter_flag(c);
+                i += 1;
+            }
         }
+#endif
+    }
 
-
-    // ------------------------------------ Additional Features --------------------------------------- //
-
-    // ----- Check if a key is pressed
     inline bool isKeyPressed() {
-        for (int i = 0; i < 256; i++) {
-            if (Keyboard::isPressed(i)) return true;
-            }
-        return false;
-        }
+        return KeyIsPressed::A || KeyIsPressed::B || KeyIsPressed::C ||
+               KeyIsPressed::D || KeyIsPressed::E || KeyIsPressed::F ||
+               KeyIsPressed::G || KeyIsPressed::H || KeyIsPressed::I ||
+               KeyIsPressed::J || KeyIsPressed::K || KeyIsPressed::L ||
+               KeyIsPressed::M || KeyIsPressed::N || KeyIsPressed::O ||
+               KeyIsPressed::P || KeyIsPressed::Q || KeyIsPressed::R ||
+               KeyIsPressed::S || KeyIsPressed::T || KeyIsPressed::U ||
+               KeyIsPressed::V || KeyIsPressed::W || KeyIsPressed::X ||
+               KeyIsPressed::Y || KeyIsPressed::Z ||
+               KeyIsPressed::Num0 || KeyIsPressed::Num1 || KeyIsPressed::Num2 ||
+               KeyIsPressed::Num3 || KeyIsPressed::Num4 || KeyIsPressed::Num5 ||
+               KeyIsPressed::Num6 || KeyIsPressed::Num7 || KeyIsPressed::Num8 ||
+               KeyIsPressed::Num9 ||
+               KeyIsPressed::Up || KeyIsPressed::Down || KeyIsPressed::Left ||
+               KeyIsPressed::Right || KeyIsPressed::Escape || KeyIsPressed::Enter ||
+               KeyIsPressed::Space || KeyIsPressed::Tab || KeyIsPressed::Backspace ||
+               KeyIsPressed::Delete || KeyIsPressed::Insert || KeyIsPressed::Home ||
+               KeyIsPressed::End || KeyIsPressed::PageUp || KeyIsPressed::PageDown ||
+               KeyIsPressed::Shift || KeyIsPressed::Control || KeyIsPressed::Alt;
+    }
 
-    // ----- Check if a key is hold
     inline bool isKeyHold() {
-        for (int i = 0; i < 256; i++) {
-            if (Keyboard::isHold(i)) return true;
-            }
-        return false;
-        }
+        return KeyIsHold::A || KeyIsHold::B || KeyIsHold::C ||
+               KeyIsHold::D || KeyIsHold::E || KeyIsHold::F ||
+               KeyIsHold::G || KeyIsHold::H || KeyIsHold::I ||
+               KeyIsHold::J || KeyIsHold::K || KeyIsHold::L ||
+               KeyIsHold::M || KeyIsHold::N || KeyIsHold::O ||
+               KeyIsHold::P || KeyIsHold::Q || KeyIsHold::R ||
+               KeyIsHold::S || KeyIsHold::T || KeyIsHold::U ||
+               KeyIsHold::V || KeyIsHold::W || KeyIsHold::X ||
+               KeyIsHold::Y || KeyIsHold::Z ||
+               KeyIsHold::Up || KeyIsHold::Down || KeyIsHold::Left ||
+               KeyIsHold::Right || KeyIsHold::Escape || KeyIsHold::Enter;
+    }
 
-    // ----- Check if a key is released
     inline bool isKeyReleased() {
-        for (int i = 0; i < 256; i++) {
-            if (Keyboard::isReleased(i)) return true;
-            }
-        return false;
-        }
+        return KeyIsReleased::Up || KeyIsReleased::Down ||
+               KeyIsReleased::Left || KeyIsReleased::Right ||
+               KeyIsReleased::Escape || KeyIsReleased::Enter;
+    }
 
-    // ----- Wait for any key to be pressed
-    inline void waitForAnyKey(const std::string& msg = "Press any key to continue... ") {
+    inline void waitForAnyKey(const std::string &msg = "Press any key to continue... ") {
         std::cout << msg;
         std::cout.flush();
-        _getch();
+        hp::platform::getch();
         std::cout << '\n';
-        }
+        hp::platform::disable_raw();
+    }
 
-    // ----- Get the last key pressed
     inline int lastKeyPressed() {
+#ifdef _WIN32
         for (int i = 0; i < 256; i++) {
             if (GetAsyncKeyState(i) & 0x8000) {
                 return i;
-                }
             }
+        }
+#endif
         return 0;
-        }
+    }
 
-    // ----- Check if a letter key is pressed
     inline bool letterIsPressed() {
+#ifdef _WIN32
         for (char c = 'A'; c <= 'Z'; c++) {
-            if (GetAsyncKeyState(c) & 0x8000) return true;
-            }
+            if (GetAsyncKeyState(c) & 0x8000)
+                return true;
+        }
         for (char c = 'a'; c <= 'z'; c++) {
-            if (GetAsyncKeyState(c) & 0x8000) return true;
-            }
-        return false;
+            if (GetAsyncKeyState(c) & 0x8000)
+                return true;
         }
+#endif
+        return false;
+    }
 
-    // ----- Check if a number key is pressed
     inline bool numberIsPressed() {
+#ifdef _WIN32
         for (char c = '0'; c <= '9'; c++) {
-            if (GetAsyncKeyState(c) & 0x8000) return true;
-            }
+            if (GetAsyncKeyState(c) & 0x8000)
+                return true;
+        }
+#endif
         return false;
-        }
+    }
 
-    // ----- Check if an arrow key is pressed
     inline bool arrowIsPressed() {
+#ifdef _WIN32
         return (GetAsyncKeyState(VK_UP) & 0x8000) ||
-            (GetAsyncKeyState(VK_DOWN) & 0x8000) ||
-            (GetAsyncKeyState(VK_LEFT) & 0x8000) ||
-            (GetAsyncKeyState(VK_RIGHT) & 0x8000);
-        }
+               (GetAsyncKeyState(VK_DOWN) & 0x8000) ||
+               (GetAsyncKeyState(VK_LEFT) & 0x8000) ||
+               (GetAsyncKeyState(VK_RIGHT) & 0x8000);
+#else
+        return KeyIsPressed::Up || KeyIsPressed::Down ||
+               KeyIsPressed::Left || KeyIsPressed::Right;
+#endif
+    }
 
-    // ----- Check if a modifier key is pressed
     inline bool modifierIsPressed() {
+#ifdef _WIN32
         return (GetAsyncKeyState(VK_CONTROL) & 0x8000) ||
-            (GetAsyncKeyState(VK_MENU) & 0x8000) ||
-            (GetAsyncKeyState(VK_SHIFT) & 0x8000);
-        }
+               (GetAsyncKeyState(VK_MENU) & 0x8000) ||
+               (GetAsyncKeyState(VK_SHIFT) & 0x8000);
+#else
+        return false;
+#endif
+    }
 
-    // ----- Check if a mouse key is pressed
     inline bool isMouseIsPressed() {
+#ifdef _WIN32
         return (GetAsyncKeyState(VK_LBUTTON) & 0x8000) ||
-            (GetAsyncKeyState(VK_RBUTTON) & 0x8000);
-        }
+               (GetAsyncKeyState(VK_RBUTTON) & 0x8000);
+#else
+        return false;
+#endif
+    }
 
-    // ----- Get the name of the pressed key
     inline std::string getKeyName(int key) {
         switch (key) {
-            case VK_LEFT:   return "Left Arrow";
-            case VK_RIGHT:  return "Right Arrow";
-            case VK_UP:     return "Up Arrow";
-            case VK_DOWN:   return "Down Arrow";
-            case VK_ESCAPE: return "Escape";
-            case VK_RETURN: return "Enter";
-            case VK_SPACE:  return "Space";
-            case VK_TAB:    return "Tab";
-            case VK_BACK:   return "Backspace";
-            case VK_DELETE: return "Delete";
-            case VK_INSERT: return "Insert";
-            case VK_HOME:   return "Home";
-            case VK_END:    return "End";
-            case VK_PRIOR:  return "Page Up";
-            case VK_NEXT:   return "Page Down";
-            case VK_SHIFT:  return "Shift";
-            case VK_CONTROL: return "Control";
-            case VK_MENU:   return "Alt";
-            case VK_F1:  return "F1";
-            case VK_F2:  return "F2";
-            case VK_F3:  return "F3";
-            case VK_F4:  return "F4";
-            case VK_F5:  return "F5";
-            case VK_F6:  return "F6";
-            case VK_F7:  return "F7";
-            case VK_F8:  return "F8";
-            case VK_F9:  return "F9";
-            case VK_F10: return "F10";
-            case VK_F11: return "F11";
-            case VK_F12: return "F12";
-            case VK_LBUTTON: return "Left Mouse Button";
-            case VK_RBUTTON: return "Right Mouse Button";
+            case 0x25:
+                return "Left Arrow";
+            case 0x27:
+                return "Right Arrow";
+            case 0x26:
+                return "Up Arrow";
+            case 0x28:
+                return "Down Arrow";
+            case 0x1B:
+                return "Escape";
+            case 0x0D:
+                return "Enter";
+            case 0x20:
+                return "Space";
+            case 0x09:
+                return "Tab";
+            case 0x08:
+                return "Backspace";
+            case 0x2E:
+                return "Delete";
+            case 0x2D:
+                return "Insert";
+            case 0x24:
+                return "Home";
+            case 0x23:
+                return "End";
+            case 0x21:
+                return "Page Up";
+            case 0x22:
+                return "Page Down";
+            case 0x10:
+                return "Shift";
+            case 0x11:
+                return "Control";
+            case 0x12:
+                return "Alt";
+            case 0x70:
+                return "F1";
+            case 0x71:
+                return "F2";
+            case 0x72:
+                return "F3";
+            case 0x73:
+                return "F4";
+            case 0x74:
+                return "F5";
+            case 0x75:
+                return "F6";
+            case 0x76:
+                return "F7";
+            case 0x77:
+                return "F8";
+            case 0x78:
+                return "F9";
+            case 0x79:
+                return "F10";
+            case 0x7A:
+                return "F11";
+            case 0x7B:
+                return "F12";
             default:
                 if (key >= 32 && key <= 126) {
                     return std::string(1, static_cast<char>(key));
-                    }
+                }
                 return "Unknown (" + std::to_string(key) + ")";
-            }
         }
+    }
 
-    // ----- Get the name of the number key pressed
     inline std::string getNumKey() {
-        if (GetAsyncKeyState(VK_NUMPAD0) & 0x8000) { return "0"; }
-        if (GetAsyncKeyState(VK_NUMPAD1) & 0x8000) { return "1"; }
-        if (GetAsyncKeyState(VK_NUMPAD2) & 0x8000) { return "2"; }
-        if (GetAsyncKeyState(VK_NUMPAD3) & 0x8000) { return "3"; }
-        if (GetAsyncKeyState(VK_NUMPAD4) & 0x8000) { return "4"; }
-        if (GetAsyncKeyState(VK_NUMPAD5) & 0x8000) { return "5"; }
-        if (GetAsyncKeyState(VK_NUMPAD6) & 0x8000) { return "6"; }
-        if (GetAsyncKeyState(VK_NUMPAD7) & 0x8000) { return "7"; }
-        if (GetAsyncKeyState(VK_NUMPAD8) & 0x8000) { return "8"; }
-        if (GetAsyncKeyState(VK_NUMPAD9) & 0x8000) { return "9"; }
+#ifdef _WIN32
+        if (GetAsyncKeyState(VK_NUMPAD0) & 0x8000)
+            return "0";
+        if (GetAsyncKeyState(VK_NUMPAD1) & 0x8000)
+            return "1";
+        if (GetAsyncKeyState(VK_NUMPAD2) & 0x8000)
+            return "2";
+        if (GetAsyncKeyState(VK_NUMPAD3) & 0x8000)
+            return "3";
+        if (GetAsyncKeyState(VK_NUMPAD4) & 0x8000)
+            return "4";
+        if (GetAsyncKeyState(VK_NUMPAD5) & 0x8000)
+            return "5";
+        if (GetAsyncKeyState(VK_NUMPAD6) & 0x8000)
+            return "6";
+        if (GetAsyncKeyState(VK_NUMPAD7) & 0x8000)
+            return "7";
+        if (GetAsyncKeyState(VK_NUMPAD8) & 0x8000)
+            return "8";
+        if (GetAsyncKeyState(VK_NUMPAD9) & 0x8000)
+            return "9";
+#endif
         return "None";
-        }
+    }
 
-    // ----- Get the name of the modifier key pressed
     inline std::string getModifierKey() {
+#ifdef _WIN32
         bool lctrl = GetAsyncKeyState(VK_LCONTROL) & 0x8000;
         bool rctrl = GetAsyncKeyState(VK_RCONTROL) & 0x8000;
         bool lalt = GetAsyncKeyState(VK_LMENU) & 0x8000;
         bool ralt = GetAsyncKeyState(VK_RMENU) & 0x8000;
         bool lshift = GetAsyncKeyState(VK_LSHIFT) & 0x8000;
         bool rshift = GetAsyncKeyState(VK_RSHIFT) & 0x8000;
-        if (lctrl && rctrl) return "Both Control";
-        if (lalt && ralt) return "Both Alt";
-        if (lshift && rshift) return "Both Shift";
-        if (lctrl) return "Left Control";
-        if (rctrl) return "Right Control";
-        if (lalt) return "Left Alt";
-        if (ralt) return "Right Alt";
-        if (lshift) return "Left Shift";
-        if (rshift) return "Right Shift";
+        if (lctrl && rctrl)
+            return "Both Control";
+        if (lalt && ralt)
+            return "Both Alt";
+        if (lshift && rshift)
+            return "Both Shift";
+        if (lctrl)
+            return "Left Control";
+        if (rctrl)
+            return "Right Control";
+        if (lalt)
+            return "Left Alt";
+        if (ralt)
+            return "Right Alt";
+        if (lshift)
+            return "Left Shift";
+        if (rshift)
+            return "Right Shift";
+#endif
         return "None";
-        }
+    }
 
-    // ----- Check if caps key is lock on
     inline bool isCapsLockOn() {
-        return GetKeyState(VK_CAPITAL) & 0x0001;
-        }
+#ifdef _WIN32
+        return (GetKeyState(VK_CAPITAL) & 0x0001) != 0;
+#else
+        return false;
+#endif
+    }
 
-    // ----- Check if num key is lock on
     inline bool isNumLockOn() {
-        return GetKeyState(VK_NUMLOCK) & 0x0001;
-        }
+#ifdef _WIN32
+        return (GetKeyState(VK_NUMLOCK) & 0x0001) != 0;
+#else
+        return false;
+#endif
+    }
 
-    // ----- Check if a key is down 
     inline bool isKeyDown(char key) {
-        return GetAsyncKeyState(key) & 0x8000;
-        }
+#ifdef _WIN32
+        return (GetAsyncKeyState(key) & 0x8000) != 0;
+#else
+        (void)key;
+        return false;
+#endif
+    }
 
-    // ----- Check if Multiple keys are pressed
-    template<typename... Keys>
+    template <typename... Keys>
     inline bool areKeysPressed(Keys... keys) {
+#ifdef _WIN32
         bool allPressed = true;
         ((allPressed = allPressed && (GetAsyncKeyState(keys) & 0x8000)), ...);
         return allPressed;
-        }
+#else
+        (void)std::initializer_list<int>{((void)keys, 0)...};
+        return false;
+#endif
     }
+} // namespace hp
