@@ -2,6 +2,7 @@
 
 #include <algorithm>
 #include <iostream>
+#include <optional>
 #include <ranges>
 #include <string>
 #include <type_traits>
@@ -169,42 +170,33 @@ namespace hp {
         // ----- Removes Duplicate
         template <std::ranges::range Container>
         auto duplicates(Container &container) noexcept -> Container {
-            for (std::size_t i = 0; i < Container.size(); ++i) {
-                int count = 0;
-                int value = v[i];
-
-                if (containsAny(v, value))
-                    count++;
-
-                v.erase(v.begin() + static_cast<std::ptrdiff_t>(i));
-
-                if (containsAny(v, value))
-                    count++;
-                v.insert(v.begin() + static_cast<std::ptrdiff_t>(i), value);
-
-                if (count >= 2) {
-                    v.erase(v.begin() + static_cast<std::ptrdiff_t>(i));
-                    --i;
+            using Elem = std::ranges::range_value_t<Container>;
+            std::vector<Elem> seen;
+            std::erase_if(container, [&](const Elem &v) {
+                if (std::find(seen.begin(), seen.end(), v) != seen.end()) {
+                    return true;
                 }
-            }
+                seen.push_back(v);
+                return false;
+            });
             return container;
         }
 
         // ----- Removes positives numbers
         template <std::ranges::range Container>
         auto positive(Container &container) noexcept -> Container {
-            using Elem = std::ranges::ranges_value_t<Container>;
+            using Elem = std::ranges::range_value_t<Container>;
             static_assert(std::is_arithmetic_v<Elem>, "hm::removes::positive: Container element type must be arithmetic");
-            std::erase_if(container, [&](int n) { return n > 0; });
+            std::erase_if(container, [&](Elem n) { return n > 0; });
             return container;
         }
 
         // ----- Removes negatives numbers
         template <std::ranges::range Container>
-        auto positive(Container &container) noexcept -> Container {
-            using Elem = std::ranges::ranges_value_t<Container>;
-            static_assert(std::is_arithmetic_v<Elem>, "hm::removes::positive: Container element type must be arithmetic");
-            std::erase_if(container, [&](int n) { return n < 0; });
+        auto negative(Container &container) noexcept -> Container {
+            using Elem = std::ranges::range_value_t<Container>;
+            static_assert(std::is_arithmetic_v<Elem>, "hm::removes::negative: Container element type must be arithmetic");
+            std::erase_if(container, [&](Elem n) { return n < 0; });
             return container;
         }
 
