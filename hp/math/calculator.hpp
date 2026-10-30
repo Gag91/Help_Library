@@ -7,7 +7,6 @@
 #include <cmath>
 #include "hp/flows/overflow.hpp"
 #include "hp/flows/underflow.hpp"
-#include <iostream>
 
 namespace hp {
 
