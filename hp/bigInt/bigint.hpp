@@ -2,7 +2,6 @@
 
 #include <algorithm>
 #include <cctype>
-#include <cmath>
 #include <iostream>
 #include <limits>
 #include <stdexcept>
