@@ -1,4 +1,5 @@
 #include "hp/help.hpp"
+
 #include <iostream>
 #include <memory>
 #include <meta>
@@ -18,6 +19,7 @@ struct User {
     char c = ' ';
     double a = 0.0;
     Color color;
+    std::vector<std::string> strs = {"world", "hello", "xavi", "yesyes", "kek"};
 };
 
 struct Point {
@@ -30,7 +32,6 @@ struct Line {
 };
 
 int main() {
-    hp::cls();
 
     User user{
         "Xavi\n",
@@ -43,6 +44,9 @@ int main() {
     Color c;
     User u;
     Line l{{1, 2}, {3, 4}};
+    hp::ser::to_json_file("jsonTest.json", user);
+    auto ll = hp::ser::to_json_pretty(user);
+    std::println("Pretty Json: {}", hp::ser::to_json_pretty(user));
     hp::save("line.txt", l);
 
     Line loaded;

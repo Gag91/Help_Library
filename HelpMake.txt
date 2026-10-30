@@ -1,8 +1,9 @@
 Version: std=c++26
 Output: test.exe
 Compiler: g++
+
 InputFiles {
-    test/unit_tests.cpp
+    test/file.cpp
 }
 Flags {
     -lstdc++exp

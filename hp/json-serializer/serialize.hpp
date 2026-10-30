@@ -1,10 +1,12 @@
 #pragma once
 
+#include "hp/other/type_traits.hpp"
 #include "json/parser.hpp"
 
 #include <array>
 #include <filesystem>
 #include <format>
+#include <fstream>
 #include <iostream>
 #include <map>
 #include <memory>
@@ -19,289 +21,356 @@
 
 namespace hp::ser {
 
-    template <typename T>
-    std::string to_json(const std::unique_ptr<T> &ptr);
+    namespace detail {
 
-    template <typename T>
-    std::string to_json(const std::shared_ptr<T> &ptr);
+        template <typename T>
+            requires(!std::is_enum_v<T>)
+        std::string to_json_impl(const T &value, int level, int step);
 
-    template <typename T>
-    std::string to_json(const std::weak_ptr<T> &ptr);
+        template <typename T>
+        std::string to_json_impl(const std::unique_ptr<T> &ptr, int level, int step);
 
-    template <typename T, typename U>
-    std::string to_json(const std::map<T, U> &map);
+        template <typename T>
+        std::string to_json_impl(const std::shared_ptr<T> &ptr, int level, int step);
 
-    template <typename T, typename U>
-    std::string to_json(const std::pair<T, U> &pair);
+        template <typename T>
+        std::string to_json_impl(const std::weak_ptr<T> &ptr, int level, int step);
 
-    template <typename T>
-    std::string to_json(const std::vector<T> &vec);
+        template <typename T, typename U>
+        std::string to_json_impl(const std::map<T, U> &map, int level, int step);
 
-    template <typename T>
-    std::string to_json(const std::set<T> &vec);
+        template <typename T, typename U>
+        std::string to_json_impl(const std::pair<T, U> &pair, int level, int step);
 
-    template <typename T, std::size_t U>
-    std::string to_json(const std::array<T, U> &arr);
+        template <typename T>
+        std::string to_json_impl(const std::vector<T> &vec, int level, int step);
 
-    template <typename T>
-    std::string to_json(const std::optional<T> &value);
+        template <typename T>
+        std::string to_json_impl(const std::set<T> &vec, int level, int step);
 
-    template <typename T>
-        requires std::is_enum_v<T>
-    std::string to_json(T value);
+        template <typename T, std::size_t U>
+        std::string to_json_impl(const std::array<T, U> &arr, int level, int step);
 
-    template <typename T>
-        requires(!std::is_enum_v<T>)
-    std::string to_json(const T &value);
+        template <typename T>
+        std::string to_json_impl(const std::optional<T> &value, int level, int step);
 
-    template <typename T>
-    T from_json_value(const JsonValue &v);
+        inline std::string to_json_impl(const int &value, int level, int step);
+        inline std::string to_json_impl(const double &value, int level, int step);
+        inline std::string to_json_impl(const bool &value, int level, int step);
+        inline std::string to_json_impl(const std::string &value, int level, int step);
+        inline std::string to_json_impl(const char &value, int level, int step);
+        inline std::string to_json_impl(const std::string_view &value, int level, int step);
+        inline std::string to_json_impl(const std::filesystem::path &path, int level, int step);
 
-    template <typename T>
-    T from_json(const std::string &text);
+        template <typename T>
+            requires std::is_enum_v<T>
+        std::string to_json_impl(const T &value, int level, int step);
 
-    inline std::string to_json(const int &value);
-    inline std::string to_json(const double &value);
-    inline std::string to_json(const bool &value);
-    inline std::string to_json(const char &value);
-    inline std::string to_json(const std::string &value);
-    inline std::string to_json(const std::string_view &value);
-    inline std::string to_json(const std::filesystem::path &path);
+        template <typename T>
+            requires(!std::is_enum_v<T>)
+        std::string to_json_impl(const T &value, int level, int step);
 
-    template <typename>
-    struct is_vector : std::false_type {};
-    template <typename U>
-    struct is_vector<std::vector<U>> : std::true_type {};
-    template <typename T>
-    inline constexpr bool is_vector_v = is_vector<T>::value;
-
-    template <typename>
-    struct is_map : std::false_type {};
-    template <typename T, typename U>
-    struct is_map<std::map<T, U>> : std::true_type {};
-    template <typename T>
-    inline constexpr bool is_map_v = is_map<T>::value;
-
-    template <typename>
-    struct is_unique_ptr : std::false_type {};
-    template <typename T>
-    struct is_unique_ptr<std::unique_ptr<T>> : std::true_type {};
-    template <typename T>
-    inline constexpr bool is_unique_ptr_v = is_unique_ptr<T>::value;
-
-    template <typename>
-    struct is_shared_ptr : std::false_type {};
-    template <typename T>
-    struct is_shared_ptr<std::shared_ptr<T>> : std::true_type {};
-    template <typename T>
-    inline constexpr bool is_shared_ptr_v = is_shared_ptr<T>::value;
-
-    template <typename>
-    struct is_weak_ptr : std::false_type {};
-    template <typename T>
-    struct is_weak_ptr<std::weak_ptr<T>> : std::true_type {};
-    template <typename T>
-    inline constexpr bool is_weak_ptr_v = is_weak_ptr<T>::value;
-
-    template <typename>
-    struct is_optional : std::false_type {};
-    template <typename U>
-    struct is_optional<std::optional<U>> : std::true_type {};
-    template <typename T>
-    inline constexpr bool is_optional_v = is_optional<T>::value;
-
-    template <typename>
-    struct is_pair : std::false_type {};
-    template <typename T, typename U>
-    struct is_pair<std::pair<T, U>> : std::true_type {};
-    template <typename T>
-    inline constexpr bool is_pair_v = is_pair<T>::value;
-
-    inline std::string to_json(const int &value) {
-        return std::format("{}", value);
-    }
-
-    inline std::string to_json(const double &value) {
-        return std::format("{}", value);
-    }
-
-    inline std::string to_json(const bool &value) {
-        return value ? "true" : "false";
-    }
-
-    inline std::string to_json(const std::filesystem::path &path) {
-        return to_json(path.generic_string());
-    }
-
-    template <typename T>
-    inline std::string to_json(const std::optional<T> &value) {
-        if (!value.has_value()) {
-            return "null";
+        inline std::string indent_of(int level, int step) {
+            if (step <= 0 || level <= 0)
+                return "";
+            return std::string(static_cast<std::size_t>(level) * static_cast<std::size_t>(step), ' ');
         }
-        return to_json(*value);
-    }
 
-    inline std::string to_json(const std::string &value) {
-        std::string result = "\"";
-        for (char c : value) {
-            switch (c) {
-                case '"':
-                    result += "\\\"";
-                    break;
-                case '\\':
-                    result += "\\\\";
-                    break;
-                case '\n':
-                    result += "\\n";
-                    break;
-                case '\t':
-                    result += "\\t";
-                    break;
-                case '\r':
-                    result += "\\r";
-                    break;
-                default:
-                    result += c;
+        inline std::string to_json_impl(const int &value, int, int) {
+            return std::format("{}", value);
+        }
+
+        inline std::string to_json_impl(const double &value, int, int) {
+            return std::format("{}", value);
+        }
+
+        inline std::string to_json_impl(const bool &value, int, int) {
+            return value ? "true" : "false";
+        }
+
+        inline std::string to_json_impl(const std::filesystem::path &path, int, int) {
+            return to_json_impl(path.generic_string(), 0, 0);
+        }
+
+        inline std::string to_json_impl(const std::string &value, int, int) {
+            std::string result = "\"";
+            for (char c : value) {
+                switch (c) {
+                    case '"':
+                        result += "\\\"";
+                        break;
+                    case '\\':
+                        result += "\\\\";
+                        break;
+                    case '\n':
+                        result += "\\n";
+                        break;
+                    case '\t':
+                        result += "\\t";
+                        break;
+                    case '\r':
+                        result += "\\r";
+                        break;
+                    default:
+                        result += c;
+                }
+            }
+            result += "\"";
+            return result;
+        }
+
+        inline std::string to_json_impl(const std::string_view &value, int, int) {
+            return to_json_impl(std::string(value), 0, 0);
+        }
+
+        inline std::string to_json_impl(const char &value, int, int) {
+            return to_json_impl(std::string(1, value), 0, 0);
+        }
+
+        template <typename T>
+        std::string to_json_impl(const std::vector<T> &vec, int level, int step) {
+            if (vec.empty())
+                return "[]";
+
+            if (step <= 0) {
+                std::string result = "[";
+                bool first = true;
+                for (const auto &v : vec) {
+                    if (!first)
+                        result += ", ";
+                    first = false;
+                    result += to_json_impl(v, 0, 0);
+                }
+                result += "]";
+                return result;
+            }
+
+            std::string inner = indent_of(level + 1, step);
+            std::string closing = indent_of(level, step);
+            std::string result = "[\n";
+            bool first = true;
+            for (const auto &v : vec) {
+                if (!first)
+                    result += ",\n";
+                first = false;
+                result += inner + to_json_impl(v, level + 1, step);
+            }
+            result += "\n" + closing + "]";
+            return result;
+        }
+
+        template <typename T>
+        std::string to_json_impl(const std::set<T> &vec, int level, int step) {
+            if (vec.empty())
+                return "[]";
+
+            if (step <= 0) {
+                std::string result = "[";
+                bool first = true;
+                for (const auto &v : vec) {
+                    if (!first)
+                        result += ", ";
+                    first = false;
+                    result += to_json_impl(v, 0, 0);
+                }
+                result += "]";
+                return result;
+            }
+
+            std::string inner = indent_of(level + 1, step);
+            std::string closing = indent_of(level, step);
+            std::string result = "[\n";
+            bool first = true;
+            for (const auto &v : vec) {
+                if (!first)
+                    result += ",\n";
+                first = false;
+                result += inner + to_json_impl(v, level + 1, step);
+            }
+            result += "\n" + closing + "]";
+            return result;
+        }
+
+        template <typename T, std::size_t U>
+        std::string to_json_impl(const std::array<T, U> &arr, int level, int step) {
+            if constexpr (U == 0) {
+                return "[]";
+            } else {
+                if (step <= 0) {
+                    std::string result = "[";
+                    bool first = true;
+                    for (const auto &a : arr) {
+                        if (!first)
+                            result += ", ";
+                        first = false;
+                        result += to_json_impl(a, 0, 0);
+                    }
+                    result += "]";
+                    return result;
+                }
+
+                std::string inner = indent_of(level + 1, step);
+                std::string closing = indent_of(level, step);
+                std::string result = "[\n";
+                bool first = true;
+                for (const auto &a : arr) {
+                    if (!first)
+                        result += ",\n";
+                    first = false;
+                    result += inner + to_json_impl(a, level + 1, step);
+                }
+                result += "\n" + closing + "]";
+                return result;
             }
         }
-        result += "\"";
-        return result;
-    }
 
-    inline std::string to_json(const std::string_view &value) {
-        return to_json(std::string(value));
-    }
+        template <typename T, typename U>
+        std::string to_json_impl(const std::map<T, U> &map, int level, int step) {
+            if (map.empty())
+                return "{}";
 
-    inline std::string to_json(const char &value) {
-        return to_json(std::string(1, value));
-    }
-
-    template <typename T>
-    std::string to_json(const std::vector<T> &vec) {
-        std::string result = "[";
-        bool first = true;
-        for (const auto &v : vec) {
-            if (!first)
-                result += ", ";
-            first = false;
-            result += to_json(v);
-        }
-        result += "]";
-        return result;
-    }
-
-    template <typename T>
-    std::string to_json(const std::set<T> &vec) {
-        std::string result = "[";
-        bool first = true;
-        for (const auto &v : vec) {
-            if (!first)
-                result += ", ";
-            first = false;
-            result += to_json(v);
-        }
-        result += "]";
-        return result;
-    }
-
-    template <typename T, std::size_t U>
-    std::string to_json(const std::array<T, U> &arr) {
-        std::string result = "[";
-        bool first = true;
-        for (const auto &a : arr) {
-            if (!first) {
-                result += ", ";
+            if (step <= 0) {
+                std::string result = "{";
+                bool first = true;
+                for (const auto &[k, v] : map) {
+                    if (!first)
+                        result += ", ";
+                    first = false;
+                    result += to_json_impl(k, 0, 0) + ": " + to_json_impl(v, 0, 0);
+                }
+                result += "}";
+                return result;
             }
-            first = false;
-            result += to_json(a);
-        }
-        return result += "]";
-    }
 
-    template <typename T>
-    std::string to_json(const std::unique_ptr<T> &ptr) {
-        if (!ptr)
-            return "null";
-        return to_json(*ptr);
-    }
-
-    template <typename T>
-    std::string to_json(const std::shared_ptr<T> &ptr) {
-        if (!ptr)
-            return "null";
-        return to_json(*ptr);
-    }
-
-    template <typename T>
-    std::string to_json(const std::weak_ptr<T> &p) {
-        if (auto sp = p.lock()) {
-            return to_json(*sp);
-        }
-        return "null";
-    }
-
-    template <typename T, typename U>
-    std::string to_json(const std::map<T, U> &map) {
-        std::string result;
-        bool first = true;
-        result += "{";
-        for (const auto &[Key, Value] : map) {
-            if (!first)
-                result += ", ";
-            first = false;
-            result += to_json(Key);
-            result += ": ";
-            result += to_json(Value);
-        }
-
-        result += "}";
-        return result;
-    }
-
-    template <typename T, typename U>
-    std::string to_json(const std::pair<T, U> &pair) {
-        std::string result = "[";
-
-        result += to_json(pair.first);
-        result += ", ";
-        result += to_json(pair.second);
-
-        return result += "]";
-    }
-
-    template <typename T>
-        requires std::is_enum_v<T>
-    std::string to_json(T value) {
-        static constexpr auto enumerators = std::define_static_array(
-            std::meta::enumerators_of(^^T));
-
-        template for (constexpr auto e : enumerators) {
-            if (value == [:e:]) {
-                return std::format("\"{}\"", std::meta::identifier_of(e));
+            std::string inner = indent_of(level + 1, step);
+            std::string closing = indent_of(level, step);
+            std::string result = "{\n";
+            bool first = true;
+            for (const auto &[k, v] : map) {
+                if (!first)
+                    result += ",\n";
+                first = false;
+                result += inner + to_json_impl(k, level + 1, step) + ": " + to_json_impl(v, level + 1, step);
             }
+            result += "\n" + closing + "}";
+            return result;
         }
-        return "null";
-    }
+
+        template <typename T, typename U>
+        std::string to_json_impl(const std::pair<T, U> &pair, int level, int step) {
+            if (step <= 0) {
+                return "[" + to_json_impl(pair.first, 0, 0) + ", " + to_json_impl(pair.second, 0, 0) + "]";
+            }
+
+            std::string inner = indent_of(level + 1, step);
+            std::string closing = indent_of(level, step);
+            return "[\n" + inner + to_json_impl(pair.first, level + 1, step) +
+                   ",\n" + inner + to_json_impl(pair.second, level + 1, step) +
+                   "\n" + closing + "]";
+        }
+
+        template <typename T>
+        std::string to_json_impl(const std::unique_ptr<T> &ptr, int level, int step) {
+            if (!ptr)
+                return "null";
+            return to_json_impl(*ptr, level, step);
+        }
+
+        template <typename T>
+        std::string to_json_impl(const std::shared_ptr<T> &ptr, int level, int step) {
+            if (!ptr)
+                return "null";
+            return to_json_impl(*ptr, level, step);
+        }
+
+        template <typename T>
+        std::string to_json_impl(const std::weak_ptr<T> &ptr, int level, int step) {
+            auto sp = ptr.lock();
+            if (!sp)
+                return "null";
+            return to_json_impl(*sp, level, step);
+        }
+
+        template <typename T>
+        std::string to_json_impl(const std::optional<T> &value, int level, int step) {
+            if (!value.has_value())
+                return "null";
+            return to_json_impl(*value, level, step);
+        }
+
+        template <typename T>
+            requires std::is_enum_v<T>
+        std::string to_json_impl(const T &value, int, int) {
+            static constexpr auto enumerators = std::define_static_array(
+                std::meta::enumerators_of(^^T));
+
+            template for (constexpr auto e : enumerators) {
+                if (value == [:e:]) {
+                    return std::format("\"{}\"", std::meta::identifier_of(e));
+                }
+            }
+            return "null";
+        }
+
+        template <typename T>
+            requires(!std::is_enum_v<T>)
+        std::string to_json_impl(const T &value, int level, int step) {
+            static constexpr auto members = std::define_static_array(
+                std::meta::nonstatic_data_members_of(^^T, std::meta::access_context::unchecked()));
+
+            if (step <= 0) {
+                std::string result = "{";
+                bool first = true;
+                template for (constexpr auto m : members) {
+                    if (!first)
+                        result += ", ";
+                    first = false;
+                    result += std::format("\"{}\": ", std::meta::identifier_of(m));
+                    result += to_json_impl(value.[:m:], 0, 0);
+                }
+                result += "}";
+                return result;
+            }
+
+            std::string inner = indent_of(level + 1, step);
+            std::string closing = indent_of(level, step);
+            std::string result = "{\n";
+            bool first = true;
+            template for (constexpr auto m : members) {
+                if (!first)
+                    result += ",\n";
+                first = false;
+                result += inner + std::format("\"{}\": ", std::meta::identifier_of(m));
+                result += to_json_impl(value.[:m:], level + 1, step);
+            }
+            result += "\n" + closing + "}";
+            return result;
+        }
+
+    } // namespace detail
 
     template <typename T>
-        requires(!std::is_enum_v<T>)
     std::string to_json(const T &value) {
-        static constexpr auto members = std::define_static_array(
-            std::meta::nonstatic_data_members_of(^^T, std::meta::access_context::unchecked()));
+        return detail::to_json_impl(value, 0, 0);
+    }
 
-        std::string result = "{";
-        bool first = true;
+    template <typename T>
+    std::string to_json(const T &value, int pretty_step) {
+        return detail::to_json_impl(value, 0, pretty_step);
+    }
 
-        template for (constexpr auto m : members) {
-            if (!first)
-                result += ", ";
-            first = false;
-            result += std::format("\"{}\": ", std::meta::identifier_of(m));
-            result += to_json(value.[:m:]);
-        }
+    template <typename T>
+    std::string to_json_pretty(const T &value, int step = 2) {
+        return detail::to_json_impl(value, 0, step);
+    }
 
-        result += "}";
-        return result;
+    template <typename T>
+    bool to_json_file(const std::filesystem::path &path, const T &value, bool pretty = true) {
+        std::ofstream out(path, std::ios::binary);
+        if (!out)
+            return false;
+        out << to_json(value, pretty ? 2 : 0);
+        return static_cast<bool>(out);
     }
 
     template <typename T>
@@ -363,16 +432,10 @@ namespace hp::ser {
             using Elem = typename T::element_type;
             if (std::holds_alternative<std::nullptr_t>(v.data))
                 return nullptr;
-
             return std::make_shared<Elem>(from_json_value<Elem>(v));
 
         } else if constexpr (is_weak_ptr_v<DecayedT>) {
-            using Elem = typename T::element_type;
-            if (std::holds_alternative<std::nullptr_t>(v.data))
-                return DecayedT();
-
-            const auto &sp = std::make_shared<Elem>(from_json_value<Elem>(v));
-            static_assert(sizeof(T) == 0, "Hi, if u see this it means ur using weak_ptr, pls go touch grass outside, think twice abt ur code design and dont use this shit anymore,thanks.\n\n");
+            static_assert(sizeof(T) == 0, "weak_ptr is not supported by from_json; store a shared_ptr instead");
 
         } else if constexpr (is_optional_v<DecayedT>) {
             using Elem = typename T::value_type;
@@ -394,6 +457,7 @@ namespace hp::ser {
             return T{
                 from_json_value<First>(*arr[0]),
                 from_json_value<Second>(*arr[1])};
+
         } else if constexpr (std::is_enum_v<DecayedT>) {
             static constexpr auto enumerators = std::define_static_array(
                 std::meta::enumerators_of(^^T));

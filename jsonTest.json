@@ -1,0 +1,16 @@
+{
+  "name": "Xavi\n",
+  "age": 50,
+  "ptr": "hi",
+  "iptr": 1337,
+  "c": "Z",
+  "a": 3.14159,
+  "color": "Red",
+  "strs": [
+    "world",
+    "hello",
+    "xavi",
+    "yesyes",
+    "kek"
+  ]
+}
