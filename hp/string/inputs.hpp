@@ -1,6 +1,4 @@
 #pragma once
-#define NOMINMAX
-
 #include <iostream>
 
 namespace hp {
