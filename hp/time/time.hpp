@@ -1,15 +1,14 @@
 #pragma once
 
 #include <chrono>
-#include <ctime>
-#include <random>
+#include <iostream>
 #include <thread>
 
 namespace hp {
 
     // ----- Wait in seconds
     inline void wait(double t) {
-        std::this_thread::sleep_for(std::chrono::milliseconds((int)(t * 1000)));
+        std::this_thread::sleep_for(std::chrono::milliseconds(static_cast<int>((t * 1000))));
     }
 
     // ----- Wait in miliseconds
