@@ -463,8 +463,11 @@ namespace hp::ser {
                 std::meta::enumerators_of(^^T));
 
             template for (constexpr auto e : enumerators) {
-                return [:e:];
+                if (text == std::meta::identifier_of(e)) {
+                    return [:e:];
+                }
             }
+            throw std::runtime_error("Unknown enum value: " + text);
             return DecayedT();
 
         } else {

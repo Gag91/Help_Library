@@ -115,7 +115,6 @@ namespace hp {
 
         std::string token;
         file >> token;
-        std::println("First Value: {}", token);
 
         template for (constexpr auto m : members) {
             if (token == std::meta::identifier_of(m)) {
