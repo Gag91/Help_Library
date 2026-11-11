@@ -13,3 +13,29 @@ Flags {
 Includes {
     .
 }
+
+Config: print {
+    Test: true
+    InputFiles: test/print.cpp
+    Output: print-test.exe
+
+}
+
+Config: cout {
+    Test: true
+    InputFiles: test/cout.cpp
+    Output: cout-test.exe
+    
+}
+
+Config: file {
+    Test: true
+    InputFiles: test/file.cpp
+    Output: file-test.exe
+}
+
+Config: unit {
+    Test: true
+    InputFiles: test/unit_tests.cpp
+    Output: unit-test.exe
+}
