@@ -408,6 +408,24 @@ namespace hp {
                        std::ranges::to<std::string>();
             }
 
+            // ----- ANSI regex pattern
+            inline const std::regex &ansi_regex() {
+                static const std::regex re(
+                    R"(\x1B(?:\[[0-9;?]*[ -/]*[@-~]|\][^\x07]*(?:\x07|\x1B\\)|[()][0-2A-Z]|[=>NOPc]))",
+                    std::regex::ECMAScript | std::regex::optimize);
+                return re;
+            }
+
+            // ----- Strip ANSI
+            [[nodiscard]] inline std::string ansi(std::string_view input) {
+                return std::regex_replace(std::string(input), ansi_regex(), "");
+            }
+
+            // ----- Has ANSI
+            [[nodiscard]] inline bool has_ansi(std::string_view input) {
+                return std::regex_search(input.begin(), input.end(), ansi_regex());
+            }
+
         } // namespace trim
     } // namespace str
 
