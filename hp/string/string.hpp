@@ -2,10 +2,20 @@
 
 #include "hp/concepts/concept.hpp"
 #include "hp/other/type_traits.hpp"
+
+#include <algorithm>
+#include <cctype>
+#include <concepts>
 #include <filesystem>
+#include <format>
 #include <functional>
 #include <iostream>
+#include <limits>
 #include <meta>
+#include <ranges>
+#include <stdexcept>
+#include <string>
+#include <string_view>
 #include <type_traits>
 
 #ifdef _WIN32
@@ -34,30 +44,41 @@ namespace hp::detail {
         }
         return out;
     }
+
 } // namespace hp::detail
 
 namespace hp {
 
     namespace str {
 
+        // ----- Trim whitespace from both ends, returning a view
+        [[nodiscard]] inline std::string_view trim_view(std::string_view s) {
+            while (!s.empty() && std::isspace(static_cast<unsigned char>(s.front())))
+                s.remove_prefix(1);
+            while (!s.empty() && std::isspace(static_cast<unsigned char>(s.back())))
+                s.remove_suffix(1);
+            return s;
+        }
+
+        // ----- Trim whitespace from both ends, returning a copy
+        [[nodiscard]] inline std::string trim(std::string_view s) {
+            return std::string(trim_view(s));
+        }
+
         // ----- String to upper
         [[nodiscard]] inline std::string to_upper(std::string_view str) {
-            std::string result;
-            result.reserve(str.size());
-            for (char c : str) {
-                result.push_back(static_cast<unsigned char>(std::toupper(static_cast<unsigned char>(c))));
-            }
-            return result;
+            return str | std::views::transform([](unsigned char c) {
+                       return static_cast<char>(std::toupper(c));
+                   }) |
+                   std::ranges::to<std::string>();
         }
 
         // ----- String to lower
         [[nodiscard]] inline std::string to_lower(std::string_view str) {
-            std::string result;
-            result.reserve(str.size());
-            for (char c : str) {
-                result.push_back(static_cast<unsigned char>(std::tolower(static_cast<unsigned char>(c))));
-            }
-            return result;
+            return str | std::views::transform([](unsigned char c) {
+                       return static_cast<char>(std::tolower(c));
+                   }) |
+                   std::ranges::to<std::string>();
         }
 
         // ----- String to T
@@ -66,30 +87,7 @@ namespace hp {
             using DecayedT = std::remove_cvref_t<T>;
 
             if constexpr (std::is_same_v<DecayedT, std::string>) {
-                std::string result;
-                for (const char &c : str) {
-                    switch (c) {
-                        case '"':
-                            result += "\\\"";
-                            break;
-                        case '\\':
-                            result += "\\\\";
-                            break;
-                        case '\n':
-                            result += "\\n";
-                            break;
-                        case '\t':
-                            result += "\\t";
-                            break;
-                        case '\r':
-                            result += "\\r";
-                            break;
-                        default:
-                            result += c;
-                            break;
-                    }
-                }
-                return result;
+                return str;
 
             } else if constexpr (std::is_same_v<DecayedT, std::string_view>) {
                 return std::string_view(str);
@@ -104,9 +102,10 @@ namespace hp {
                 return str[0];
 
             } else if constexpr (std::is_same_v<DecayedT, bool>) {
-                if (to_lower(str) == "true" || str == "1")
+                const std::string lower = to_lower(str);
+                if (lower == "true" || str == "1")
                     return true;
-                if (to_lower(str) == "false" || str == "0")
+                if (lower == "false" || str == "0")
                     return false;
                 throw std::invalid_argument("Invalid boolean string: " + str);
 
@@ -264,9 +263,8 @@ namespace hp {
                 std::string out = "[";
                 bool first = true;
                 for (const auto &item : value) {
-                    if (!first) {
+                    if (!first)
                         out += ", ";
-                    }
                     out += hp::str::to_string(item);
                     first = false;
                 }
@@ -294,22 +292,18 @@ namespace hp {
                     result += "}";
                     return result;
                 }
+            } else if constexpr (requires { std::format("{}", value); }) {
+                return std::format("{}", value);
             } else {
-                throw std::runtime_error("Unsupported type");
+                static_assert(false, "hp::str::to_string: unsupported type");
             }
         }
 
         // ----- Similar String
         template <typename T, typename U>
         inline bool is_typo(T value1, U value2) {
-            std::string str1, str2;
-            if constexpr (!std::is_same_v<std::decay_t<T>, std::string>) {
-                str1 = hp::str::to_string(value1);
-                str2 = hp::str::to_string(value2);
-            } else {
-                str1 = value1;
-                str2 = value2;
-            }
+            std::string str1 = hp::str::to_string(value1);
+            std::string str2 = hp::str::to_string(value2);
 
             if (str1 == str2)
                 return false;
@@ -322,7 +316,6 @@ namespace hp {
 
             int errors = 0;
             if (a.size() == b.size()) {
-
                 for (std::size_t i = 0; i < a.size(); ++i)
                     if (a[i] != b[i] && ++errors >= 2)
                         return false;
@@ -346,60 +339,88 @@ namespace hp {
                     ++j;
                 }
             }
-
             return true;
+        }
+
+        // ----- Remove surrounding "…" or '…' and unescape \" \\ \n \t \r
+        [[nodiscard]] inline std::string unquote(std::string_view s) {
+            s = trim_view(s);
+            if (s.size() < 2)
+                return std::string(s);
+            char q = s.front();
+            if ((q != '"' && q != '\'') || s.back() != q)
+                return std::string(s);
+
+            std::string out;
+            out.reserve(s.size() - 2);
+            for (std::size_t i = 1; i + 1 < s.size(); ++i) {
+                if (s[i] == '\\' && i + 2 < s.size()) {
+                    switch (s[++i]) {
+                        case 'n':
+                            out += '\n';
+                            break;
+                        case 't':
+                            out += '\t';
+                            break;
+                        case 'r':
+                            out += '\r';
+                            break;
+                        case '\\':
+                            out += '\\';
+                            break;
+                        case '"':
+                            out += '"';
+                            break;
+                        case '\'':
+                            out += '\'';
+                            break;
+                        default:
+                            out += s[i];
+                            break;
+                    }
+                } else {
+                    out += s[i];
+                }
+            }
+            return out;
         }
 
         namespace trim {
 
             // ----- White spaces
             [[nodiscard]] inline std::string white_spaces(std::string_view str) {
-                std::string result;
-                result.reserve(str.size());
-                for (char c : str) {
-                    if (c != ' ') {
-                        result += c;
-                    }
-                }
-                return result;
+                return str | std::views::filter([](char c) { return c != ' '; }) | std::ranges::to<std::string>();
             }
 
             // ----- Numbers
             [[nodiscard]] inline std::string numbers(std::string_view str) {
-                std::string result;
-                result.reserve(str.size());
-                for (char c : str) {
-                    if (std::isdigit(static_cast<unsigned char>(c))) {
-                        result += c;
-                    }
-                }
-                return result;
+                return str | std::views::filter([](char c) {
+                           return std::isdigit(static_cast<unsigned char>(c)) != 0;
+                       }) |
+                       std::ranges::to<std::string>();
             }
 
             // ----- Letters
             [[nodiscard]] inline std::string letters(std::string_view str) {
-                std::string result;
-                result.reserve(str.size());
-                for (char c : str) {
-                    if (std::isalpha(static_cast<unsigned char>(c))) {
-                        result += c;
-                    }
-                }
-                return result;
+                return str | std::views::filter([](char c) {
+                           return std::isalpha(static_cast<unsigned char>(c)) != 0;
+                       }) |
+                       std::ranges::to<std::string>();
             }
+
         } // namespace trim
     } // namespace str
 
     // ----- Regular title function
     inline void title(const std::string &t, int w = 40) {
-        std::string sep = std::string(w, '=');
-        std::cout << sep << std::endl;
-        std::cout << t << std::endl;
-        std::cout << sep << std::endl;
+        std::string sep(w, '=');
+        std::cout << std::format("{0}\n{1}\n{0}\n", sep, t) << std::flush;
     }
+
     // ----- Works the same as "std::string(int, char)" but maded to use string instead
     inline std::string repeatString(const std::string &str, int count) {
         std::string result;
+        result.reserve(str.size() * static_cast<std::size_t>(count > 0 ? count : 0));
         for (int i = 0; i < count; i++) {
             result += str;
         }
@@ -415,28 +436,28 @@ namespace hp {
 #else
         int consoleWidth = 80;
 #endif
-        int msgLen = msg.length() + 2;
-        std::size_t totalWidth = consoleWidth;
-        int sideLen = (totalWidth - msgLen) / 2;
+        const int msgLen = static_cast<int>(msg.length()) + 2;
+        const std::size_t totalWidth = static_cast<std::size_t>(consoleWidth);
+        const int sideLen = (consoleWidth - msgLen) / 2;
 
         std::string result;
         result.reserve(totalWidth);
-        result.append(sideLen, a);
+        result.append(static_cast<std::size_t>(sideLen > 0 ? sideLen : 0), a);
         result += " " + msg + " ";
-        result.append(sideLen, a);
+        result.append(static_cast<std::size_t>(sideLen > 0 ? sideLen : 0), a);
         if (result.length() < totalWidth) {
             result += a;
         }
-        std::cout << "\033[2K\r";
+        std::cout << "\r\033[2K";
         std::cout << result << '\n';
     }
+
     // ----- Wait for enter key to be pressed
     inline void waitForEnter(std::function<void()> func = nullptr) {
         std::cout << "Press Enter To Continue..." << std::endl;
         std::cout.flush();
         std::cin.clear();
         std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
-        std::cin.get();
         if (func) {
             func();
         }
