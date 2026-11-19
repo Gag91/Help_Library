@@ -459,8 +459,13 @@ namespace hp::ser {
                 from_json_value<Second>(*arr[1])};
 
         } else if constexpr (std::is_enum_v<DecayedT>) {
+            if (!std::holds_alternative<std::string>(v.data))
+                throw std::runtime_error("Expected string for enum");
+
+            const std::string &text = std::get<std::string>(v.data);
+
             static constexpr auto enumerators = std::define_static_array(
-                std::meta::enumerators_of(^^T));
+                std::meta::enumerators_of(^^DecayedT));
 
             template for (constexpr auto e : enumerators) {
                 if (text == std::meta::identifier_of(e)) {
@@ -468,7 +473,6 @@ namespace hp::ser {
                 }
             }
             throw std::runtime_error("Unknown enum value: " + text);
-            return DecayedT();
 
         } else {
             if (!std::holds_alternative<std::map<std::string, JsonValuePtr>>(v.data))
