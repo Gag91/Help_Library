@@ -427,6 +427,84 @@ namespace hp {
             }
 
         } // namespace trim
+
+        [[nodiscard]] inline std::string replace(std::string_view str, std::string_view from, std::string_view to) {
+            if (from.empty())
+                return std::string(str);
+            const std::size_t pos = str.find(from);
+            if (pos == std::string_view::npos)
+                return std::string(str);
+
+            std::string out;
+            out.reserve(str.size() - from.size() + to.size());
+            out.append(str.substr(0, pos));
+            out.append(to);
+            out.append(str.substr(pos + from.size()));
+            return out;
+        }
+
+        [[nodiscard]] inline std::string replace(std::string_view str, std::string_view from, char to) {
+            return replace(str, from, std::string_view(&to, 1));
+        }
+
+        [[nodiscard]] inline std::string replace_all(std::string_view str, std::string_view from, std::string_view to) {
+            if (from.empty())
+                return std::string(str);
+
+            std::string out;
+            out.reserve(str.size());
+            std::size_t start = 0;
+            while (true) {
+                const std::size_t pos = str.find(from, start);
+                if (pos == std::string_view::npos) {
+                    out.append(str.substr(start));
+                    break;
+                }
+                out.append(str.substr(start, pos - start));
+                out.append(to);
+                start = pos + from.size();
+            }
+            return out;
+        }
+
+        [[nodiscard]] inline std::string replace_all(std::string_view str, std::string_view from, char to) {
+            return replace_all(str, from, std::string_view(&to, 1));
+        }
+
+        [[nodiscard]] inline std::string replace_first_of(std::string_view str, std::string_view chars, std::string_view to) {
+            const std::size_t pos = str.find_first_of(chars);
+            if (pos == std::string_view::npos)
+                return std::string(str);
+
+            std::string out;
+            out.reserve(str.size() - 1 + to.size());
+            out.append(str.substr(0, pos));
+            out.append(to);
+            out.append(str.substr(pos + 1));
+            return out;
+        }
+
+        [[nodiscard]] inline std::string replace_first_of(std::string_view str, std::string_view chars, char to) {
+            return replace_first_of(str, chars, std::string_view(&to, 1));
+        }
+
+        [[nodiscard]] inline std::string replace_last_of(std::string_view str, std::string_view chars, std::string_view to) {
+            const std::size_t pos = str.find_last_of(chars);
+            if (pos == std::string_view::npos)
+                return std::string(str);
+
+            std::string out;
+            out.reserve(str.size() - 1 + to.size());
+            out.append(str.substr(0, pos));
+            out.append(to);
+            out.append(str.substr(pos + 1));
+            return out;
+        }
+
+        [[nodiscard]] inline std::string replace_last_of(std::string_view str, std::string_view chars, char to) {
+            return replace_last_of(str, chars, std::string_view(&to, 1));
+        }
+
     } // namespace str
 
     // ----- Regular title function
