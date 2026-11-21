@@ -3,7 +3,7 @@ Output: test.exe
 Compiler: g++
 
 InputFiles {
-    test/array.cpp
+    test/vector.cpp
 }
 
 Flags {
@@ -51,4 +51,10 @@ Config: array {
     Test: true
     InputFiles: test/array.cpp
     Output: array-test.exe
+}
+
+Config: vector {
+    Test: true
+    InputFiles: test/vector.cpp
+    Output: vector-test.exe
 }
