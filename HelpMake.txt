@@ -3,8 +3,9 @@ Output: test.exe
 Compiler: g++
 
 InputFiles {
-    test/file.cpp
+    test/string.cpp
 }
+
 Flags {
     -lstdc++exp
     -freflection
@@ -38,4 +39,10 @@ Config: unit {
     Test: true
     InputFiles: test/unit_tests.cpp
     Output: unit-test.exe
+}
+
+Config: string {
+    Test: true
+    InputFiles: test/string.cpp
+    Output: string-test.exe
 }
