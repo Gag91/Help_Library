@@ -13,6 +13,7 @@
 #include <limits>
 #include <meta>
 #include <ranges>
+#include <regex>
 #include <stdexcept>
 #include <string>
 #include <string_view>
@@ -61,7 +62,7 @@ namespace hp {
         }
 
         // ----- Trim whitespace from both ends, returning a copy
-        [[nodiscard]] inline std::string trim(std::string_view s) {
+        [[nodiscard]] inline std::string str_trim(std::string_view s) {
             return std::string(trim_view(s));
         }
 

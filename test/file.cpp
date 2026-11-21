@@ -1,4 +1,9 @@
-#include "hp/help.hpp"
+#include "hp/json-serializer/serialize.hpp"
+#include "hp/meta/serialize.hpp"
+#include "hp/serializer/serialize.hpp"
+#include <print>
+
+// #include "hp/help.hpp"
 
 #include <iostream>
 #include <memory>
