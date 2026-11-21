@@ -81,4 +81,149 @@ namespace hp {
         return ((std::is_same_v<T, Args>) || ...);
     }
 
+    // ----- Remove const
+    template <typename T>
+    struct remove_const {
+        using type = T;
+    };
+    template <typename T>
+    struct remove_const<const T> {
+        using type = T;
+    };
+
+    // ----- Add const
+    template <typename T>
+    struct add_const {
+        using type = const T;
+    };
+
+    // ----- Remove volatile
+    template <typename T>
+    struct remove_volatile {
+        using type = T;
+    };
+    template <typename T>
+    struct remove_volatile<volatile T> {
+        using type = T;
+    };
+
+    // ----- Add volatile
+    template <typename T>
+    struct add_volatile {
+        using type = volatile T;
+    };
+
+    // ----- Remove const volatile
+    template <typename T>
+    struct remove_cv {
+        using type = typename remove_volatile<typename remove_const<T>::type>::type;
+    };
+
+    // ----- Add const volatile
+    template <typename T>
+    struct add_cv {
+        using type = const volatile T;
+    };
+
+    // ----- Remove reference
+    template <typename T>
+    struct remove_reference {
+        using type = T;
+    };
+    template <typename T>
+    struct remove_reference<T &> {
+        using type = T;
+    };
+    template <typename T>
+    struct remove_reference<T &&> {
+        using type = T;
+    };
+
+    // ----- Add lvalue reference
+    template <typename T, typename = void>
+    struct add_lvalue_reference {
+        using type = T;
+    };
+    template <typename T>
+    struct add_lvalue_reference<T, std::void_t<T &>> {
+        using type = T &;
+    };
+
+    // ----- Add rvalue reference
+    template <typename T, typename = void>
+    struct add_rvalue_reference {
+        using type = T;
+    };
+    template <typename T>
+    struct add_rvalue_reference<T, std::void_t<T &&>> {
+        using type = T &&;
+    };
+
+    // ----- Remove cvref
+    template <typename T>
+    struct remove_cvref {
+        using type = typename remove_cv<typename remove_reference<T>::type>::type;
+    };
+
+    // ----- Remove pointer
+    template <typename T>
+    struct remove_pointer {
+        using type = T;
+    };
+    template <typename T>
+    struct remove_pointer<T *> {
+        using type = T;
+    };
+    template <typename T>
+    struct remove_pointer<T *const> {
+        using type = T;
+    };
+    template <typename T>
+    struct remove_pointer<T *volatile> {
+        using type = T;
+    };
+    template <typename T>
+    struct remove_pointer<T *const volatile> {
+        using type = T;
+    };
+
+    // ----- Add pointer
+    template <typename T, typename = void>
+    struct add_pointer {
+        using type = T;
+    };
+
+    template <typename T>
+    struct add_pointer<T, std::void_t<typename remove_reference<T>::type *>> {
+        using type = typename remove_reference<T>::type *;
+    };
+
+    // ----- Remove extent
+    template <typename T>
+    struct remove_extent {
+        using type = T;
+    };
+    template <typename T>
+    struct remove_extent<T[]> {
+        using type = T;
+    };
+    template <typename T, std::size_t N>
+    struct remove_extent<T[N]> {
+        using type = T;
+    };
+
+    // ----- Remove all extents
+    template <typename T>
+    struct remove_all_extents {
+        using type = T;
+    };
+    template <typename T>
+    struct remove_all_extents<T[]> {
+        using type = typename remove_all_extents<T>::type;
+    };
+    template <typename T, std::size_t N>
+    struct remove_all_extents<T[N]> {
+        using type = typename remove_all_extents<T>::type;
+    };
+
 } // namespace hp
