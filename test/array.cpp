@@ -362,6 +362,5 @@ int main() {
     test_narrow_capacity_boundary();
 
     constexpr hp::array<char, 15> msg = {'A', 'l', 'l', ' ', 't', 'e', 's', 't', ' ', 'p', 'a', 's', 's', 'e', 'd'};
-    for (char c : msg)
-        hp::print("{}", c);
+    hp::print("{}", msg);
 }

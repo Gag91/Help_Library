@@ -355,6 +355,5 @@ int main() {
     test_ranges_span_and_exceptions();
 
     const hp::vector<char> msg = {'A', 'l', 'l', ' ', 't', 'e', 's', 't', ' ', 'p', 'a', 's', 's', 'e', 'd'};
-    for (char c : msg)
-        hp::print("{}", c);
+    hp::print("{}", msg);
 }
