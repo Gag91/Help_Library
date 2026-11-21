@@ -12,14 +12,14 @@
 #include <utility>
 
 namespace hp {
-    template <typename T, std::unsigned_integral auto N>
+    template <typename T, std::integral auto N>
     class array {
         static_assert(N > 0, "hp::array capacity N must be greater than 0");
 
       public:
         // ----- Member Types
         using value_type = T;
-        using size_type = decltype(N);
+        using size_type = std::make_unsigned_t<decltype(N)>;
         using difference_type = std::ptrdiff_t;
         using reference = T &;
         using const_reference = const T &;

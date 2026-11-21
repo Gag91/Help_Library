@@ -361,5 +361,7 @@ int main() {
     test_all_exception_paths();
     test_narrow_capacity_boundary();
 
-    hp::println("All test passed");
+    constexpr hp::array<char, 15> msg = {'A', 'l', 'l', ' ', 't', 'e', 's', 't', ' ', 'p', 'a', 's', 's', 'e', 'd'};
+    for (char c : msg)
+        hp::print("{}", c);
 }
