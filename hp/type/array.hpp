@@ -4,6 +4,7 @@
 #include <compare>
 #include <concepts>
 #include <cstddef>
+#include <initializer_list>
 #include <iterator>
 #include <ranges>
 #include <stdexcept>
@@ -46,6 +47,10 @@ namespace hp {
             requires std::convertible_to<std::ranges::range_reference_t<R>, T>
         constexpr array(std::from_range_t, R &&rg) {
             append_range(std::forward<R>(rg));
+        }
+
+        constexpr array(std::initializer_list<T> init) {
+            append_range(init);
         }
 
         template <std::ranges::input_range R>
@@ -92,9 +97,15 @@ namespace hp {
 
             const auto target = static_cast<size_type>(new_size);
             if (target > size_) {
-                std::ranges::fill(data_ + size_, data_ + target, value);
+                if constexpr (std::is_copy_assignable_v<T>) {
+                    std::ranges::fill(data_ + size_, data_ + target, value);
+                } else {
+                    for (size_type i = size_; i < target; ++i)
+                        data_[i] = T{};
+                }
             } else if (target < size_) {
-                std::ranges::fill(data_ + target, data_ + size_, T{});
+                for (size_type i = target; i < size_; ++i)
+                    data_[i] = T{};
             }
             size_ = target;
         }
@@ -123,10 +134,10 @@ namespace hp {
         }
 
         [[nodiscard]] constexpr T &front() noexcept {
-            return data_;
+            return data_[0];
         }
         [[nodiscard]] constexpr const T &front() const noexcept {
-            return data_;
+            return data_[0];
         }
 
         [[nodiscard]] constexpr T &back() noexcept {
@@ -232,9 +243,9 @@ namespace hp {
                 throw std::out_of_range("hp::array::push_front: array is full");
 
             std::ranges::move_backward(data_, data_ + size_, data_ + size_ + 1);
-            data_ = value;
+            data_[0] = value;
             ++size_;
-            return data_;
+            return data_[0];
         }
 
         constexpr T &push_front(T &&value) {
@@ -242,9 +253,9 @@ namespace hp {
                 throw std::out_of_range("hp::array::push_front: array is full");
 
             std::ranges::move_backward(data_, data_ + size_, data_ + size_ + 1);
-            data_ = std::move(value);
+            data_[0] = std::move(value);
             ++size_;
-            return data_;
+            return data_[0];
         }
 
         constexpr iterator erase(std::unsigned_integral auto idx) {
@@ -282,7 +293,8 @@ namespace hp {
         }
 
         constexpr void clear() noexcept {
-            std::ranges::fill(data_, data_ + size_, T{});
+            for (size_type i = 0; i < size_; ++i)
+                data_[i] = T{};
             size_ = 0;
         }
 
