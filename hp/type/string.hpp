@@ -256,39 +256,39 @@ namespace hp {
         }
 
         // ----- Capacity
-        constexpr std::size_t max_size() const noexcept {
+        [[nodiscard]] constexpr std::size_t max_size() const noexcept {
             return npos / sizeof(char) - 1;
         }
 
-        constexpr std::size_t size() const noexcept {
+        [[nodiscard]] constexpr std::size_t size() const noexcept {
             return size_;
         }
-        constexpr std::size_t length() const noexcept {
+        [[nodiscard]] constexpr std::size_t length() const noexcept {
             return size_;
         }
-        constexpr bool empty() const noexcept {
+        [[nodiscard]] constexpr bool empty() const noexcept {
             return size_ == 0;
         }
 
         // ----- Element Access
-        constexpr char *c_str() const noexcept {
+        [[nodiscard]] constexpr char *c_str() const noexcept {
             return data_;
         }
 
-        constexpr const char *data() const noexcept {
+        [[nodiscard]] constexpr const char *data() const noexcept {
             return data_;
         }
-        constexpr const char &operator[](std::size_t pos) const noexcept {
+        [[nodiscard]] constexpr const char &operator[](std::size_t pos) const noexcept {
             return data_[pos];
         }
-        constexpr const char &front() const noexcept {
+        [[nodiscard]] constexpr const char &front() const noexcept {
             return data_[0];
         }
-        constexpr const char &back() const noexcept {
+        [[nodiscard]] constexpr const char &back() const noexcept {
             return data_[size_ - 1];
         }
 
-        constexpr const char &at(std::size_t pos) const {
+        [[nodiscard]] constexpr const char &at(std::size_t pos) const {
             if (pos >= size_) {
                 throw std::out_of_range("hp::string::at: index out of range");
             }
@@ -296,29 +296,29 @@ namespace hp {
         }
 
         // ----- Iterators
-        constexpr const char *begin() const noexcept {
+        [[nodiscard]] constexpr const char *begin() const noexcept {
             return data_;
         }
-        constexpr const char *cbegin() const noexcept {
+        [[nodiscard]] constexpr const char *cbegin() const noexcept {
             return data_;
         }
-        constexpr const char *end() const noexcept {
+        [[nodiscard]] constexpr const char *end() const noexcept {
             return data_ + size_;
         }
-        constexpr const char *cend() const noexcept {
+        [[nodiscard]] constexpr const char *cend() const noexcept {
             return data_ + size_;
         }
 
-        constexpr std::reverse_iterator<const char *> rbegin() const noexcept {
+        [[nodiscard]] constexpr std::reverse_iterator<const char *> rbegin() const noexcept {
             return std::reverse_iterator<const char *>(end());
         }
-        constexpr std::reverse_iterator<const char *> crbegin() const noexcept {
+        [[nodiscard]] constexpr std::reverse_iterator<const char *> crbegin() const noexcept {
             return rbegin();
         }
-        constexpr std::reverse_iterator<const char *> rend() const noexcept {
+        [[nodiscard]] constexpr std::reverse_iterator<const char *> rend() const noexcept {
             return std::reverse_iterator<const char *>(begin());
         }
-        constexpr std::reverse_iterator<const char *> crend() const noexcept {
+        [[nodiscard]] constexpr std::reverse_iterator<const char *> crend() const noexcept {
             return rend();
         }
 
@@ -340,13 +340,13 @@ namespace hp {
             return *this;
         }
 
-        constexpr char *erase(char *it) {
+        [[nodiscard]] constexpr char *erase(char *it) {
             const std::size_t pos = static_cast<std::size_t>(it - data_);
             erase(pos, 1);
             return data_ + pos;
         }
 
-        constexpr std::size_t capacity() const noexcept {
+        [[nodiscard]] constexpr std::size_t capacity() const noexcept {
             return capacity_;
         }
 
@@ -470,7 +470,7 @@ namespace hp {
             std::swap(owned_, other.owned_);
         }
 
-        constexpr string substr(std::size_t pos = 0, std::size_t count = npos) const {
+        [[nodiscard]] constexpr string substr(std::size_t pos = 0, std::size_t count = npos) const {
             if (pos > size_) {
                 throw std::out_of_range("hp::string::substr: pos out of range");
             }
@@ -480,23 +480,23 @@ namespace hp {
         }
 
         // ----- Search & Prefix/Suffix Checks
-        constexpr bool starts_with(const string &sv) const noexcept {
+        [[nodiscard]] constexpr bool starts_with(const string &sv) const noexcept {
             return size_ >= sv.size_ && std::char_traits<char>::compare(data_, sv.data_, sv.size_) == 0;
         }
 
-        constexpr bool starts_with(char ch) const noexcept {
+        [[nodiscard]] constexpr bool starts_with(char ch) const noexcept {
             return !empty() && front() == ch;
         }
 
-        constexpr bool ends_with(const string &sv) const noexcept {
+        [[nodiscard]] constexpr bool ends_with(const string &sv) const noexcept {
             return size_ >= sv.size_ && std::char_traits<char>::compare(data_ + (size_ - sv.size_), sv.data_, sv.size_) == 0;
         }
 
-        constexpr bool ends_with(char ch) const noexcept {
+        [[nodiscard]] constexpr bool ends_with(char ch) const noexcept {
             return !empty() && back() == ch;
         }
 
-        constexpr std::size_t find(const string &sv, std::size_t pos = 0) const noexcept {
+        [[nodiscard]] constexpr std::size_t find(const string &sv, std::size_t pos = 0) const noexcept {
             if (pos > size_ || sv.size_ > size_ - pos) {
                 return npos;
             }
@@ -509,7 +509,7 @@ namespace hp {
             return it == end() ? npos : static_cast<std::size_t>(it - begin());
         }
 
-        constexpr std::size_t find(char ch, std::size_t pos = 0) const noexcept {
+        [[nodiscard]] constexpr std::size_t find(char ch, std::size_t pos = 0) const noexcept {
             if (pos >= size_) {
                 return npos;
             }
@@ -518,7 +518,7 @@ namespace hp {
             return res ? static_cast<std::size_t>(res - data_) : npos;
         }
 
-        constexpr std::size_t rfind(const string &sv, std::size_t pos = npos) const noexcept {
+        [[nodiscard]] constexpr std::size_t rfind(const string &sv, std::size_t pos = npos) const noexcept {
             if (sv.size_ > size_) {
                 return npos;
             }
@@ -537,7 +537,7 @@ namespace hp {
             return npos;
         }
 
-        constexpr std::size_t rfind(char ch, std::size_t pos = npos) const noexcept {
+        [[nodiscard]] constexpr std::size_t rfind(char ch, std::size_t pos = npos) const noexcept {
             if (empty()) {
                 return npos;
             }
@@ -549,20 +549,20 @@ namespace hp {
             return npos;
         }
 
-        constexpr bool contains(const string &sv) const noexcept {
+        [[nodiscard]] constexpr bool contains(const string &sv) const noexcept {
             return find(sv) != npos;
         }
 
-        constexpr bool contains(char ch) const noexcept {
+        [[nodiscard]] constexpr bool contains(char ch) const noexcept {
             return find(ch) != npos;
         }
 
         // ----- Comparisons
-        constexpr bool operator==(const string &other) const noexcept {
+        [[nodiscard]] constexpr bool operator==(const string &other) const noexcept {
             return size_ == other.size_ && std::char_traits<char>::compare(data_, other.data_, size_) == 0;
         }
 
-        constexpr auto operator<=>(const string &other) const noexcept {
+        [[nodiscard]] constexpr auto operator<=>(const string &other) const noexcept {
             const int cmp = std::char_traits<char>::compare(data_, other.data_, std::min(size_, other.size_));
 
             if (cmp != 0)
@@ -571,11 +571,11 @@ namespace hp {
         }
 
         // ----- Conversions & Stream Output
-        constexpr explicit operator std::string_view() const noexcept {
+        [[nodiscard]] constexpr explicit operator std::string_view() const noexcept {
             return std::string_view(data_, size_);
         }
 
-        explicit operator std::string() const {
+        [[nodiscard]] explicit operator std::string() const {
             return std::string(data_, size_);
         }
 

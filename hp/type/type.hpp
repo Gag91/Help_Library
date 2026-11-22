@@ -22,6 +22,9 @@ namespace hp {
     using i32 = std::int32_t;
     using i64 = std::int64_t;
 
+    using u128 = unsigned __int128;
+    using i128 = __int128;
+
     using byte = std::byte;
 
     // ----- Floating-Point Aliases
