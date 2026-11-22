@@ -3,7 +3,7 @@ Output: test.exe
 Compiler: g++
 
 InputFiles {
-    test/vector.cpp
+    test/meta.cpp
 }
 
 Flags {
@@ -57,4 +57,10 @@ Config: vector {
     Test: true
     InputFiles: test/vector.cpp
     Output: vector-test.exe
+}
+
+Config: meta {
+    Test: true
+    InputFiles: test/meta.cpp
+    Output: meta-test.exe
 }

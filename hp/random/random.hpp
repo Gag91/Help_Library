@@ -1,13 +1,15 @@
 #pragma once
 
 #include "hp/colors/color.hpp"
+#include "hp/meta/meta.hpp"
+
 #include <iostream>
+#include <meta>
 #include <random>
 #include <stdexcept>
 #include <type_traits>
 #include <vector>
 
-// ----- Main Class
 class Random {
   private:
     // ----- Generator
@@ -16,7 +18,7 @@ class Random {
 
   public:
     // ---- Generate a random number
-    template <typename T>
+    template <typename T = std::size_t>
     static T rand(T min, T max) {
         if constexpr (std::is_integral<T>::value) {
             std::uniform_int_distribution<T> dist(min, max);
@@ -27,7 +29,7 @@ class Random {
         }
     }
 
-    // Pick a random item from a vector
+    // ----- Pick a random item from a vector
     template <typename T>
     static T choice(const std::vector<T> &vec) {
         if (vec.empty()) {
@@ -37,7 +39,7 @@ class Random {
         return vec[index];
     }
 
-    // Pick a random item from a list
+    // ----- Pick a random item from a list
     template <typename T>
     static T choice(std::initializer_list<T> list) {
         if (list.size() == 0) {
@@ -49,7 +51,7 @@ class Random {
         return *it;
     }
 
-    // Shuffle randomly a vector
+    // ----- Shuffle randomly a vector
     template <typename T>
     static void shuffle(std::vector<T> &vec) {
         for (int i = vec.size() - 1; i > 0; i--) {
@@ -58,8 +60,16 @@ class Random {
         }
     }
 
-    [[nodiscard]] static inline hp::Color randomColor() {
-        int index = Random::rand(0, hp::COLOR_COUNT - 1);
-        return static_cast<hp::Color>(index);
+    // ----- Pick a random value from an enum
+    template <typename T>
+        requires std::is_enum_v<T>
+    [[nodiscard]] static T randomValue() {
+        static constexpr auto values = get_enumerators<T>();
+        static_assert(!values.empty(), "Cannot pick a random value from an empty enum!");
+        return values[rand<std::size_t>(0, values.size() - 1)];
+    }
+
+    [[nodiscard]] static hp::Color randomColor() {
+        return randomValue<hp::Color>();
     }
 };
