@@ -97,6 +97,174 @@ namespace hp {
         using type = const T;
     };
 
+    // ----- Add past-const
+    template <typename T>
+    struct add_past_const {
+        using type = T const;
+    };
+
+    // ----- Is const predicate
+    template <typename T>
+    struct is_const {
+        static constexpr bool value = false;
+    };
+    template <typename T>
+    struct is_const<const T> {
+        static constexpr bool value = true;
+    };
+
+    // ----- Add const under reference
+    template <typename T>
+    struct add_const_under_ref {
+        using type = const T;
+    };
+    template <typename T>
+    struct add_const_under_ref<T &> {
+        using type = const T &;
+    };
+    template <typename T>
+    struct add_const_under_ref<T &&> {
+        using type = const T &&;
+    };
+
+    // ----- Remove const under reference
+    template <typename T>
+    struct remove_const_under_ref {
+        using type = typename remove_const<T>::type;
+    };
+    template <typename T>
+    struct remove_const_under_ref<T &> {
+        using type = typename remove_const<T>::type &;
+    };
+    template <typename T>
+    struct remove_const_under_ref<T &&> {
+        using type = typename remove_const<T>::type &&;
+    };
+
+    // ----- Add pointer const
+    template <typename T>
+    struct add_pointer_const {
+        using type = const T;
+    };
+    template <typename T>
+    struct add_pointer_const<T *> {
+        using type = const T *;
+    };
+    template <typename T>
+    struct add_pointer_const<T *const> {
+        using type = const T *const;
+    };
+    template <typename T>
+    struct add_pointer_const<T *volatile> {
+        using type = const T *volatile;
+    };
+    template <typename T>
+    struct add_pointer_const<T *const volatile> {
+        using type = const T *const volatile;
+    };
+
+    // ----- Remove pointer const
+    template <typename T>
+    struct remove_pointer_const {
+        using type = typename remove_const<T>::type;
+    };
+    template <typename T>
+    struct remove_pointer_const<T *> {
+        using type = typename remove_const<T>::type *;
+    };
+    template <typename T>
+    struct remove_pointer_const<T *const> {
+        using type = typename remove_const<T>::type *const;
+    };
+    template <typename T>
+    struct remove_pointer_const<T *volatile> {
+        using type = typename remove_const<T>::type *volatile;
+    };
+    template <typename T>
+    struct remove_pointer_const<T *const volatile> {
+        using type = typename remove_const<T>::type *const volatile;
+    };
+
+    // ----- Add deep const
+    template <typename T>
+    struct add_deep_const {
+        using type = const T;
+    };
+    template <typename T>
+    struct add_deep_const<T *> {
+        using type = typename add_deep_const<T>::type *const;
+    };
+    template <typename T>
+    struct add_deep_const<T *const> {
+        using type = typename add_deep_const<T>::type *const;
+    };
+    template <typename T>
+    struct add_deep_const<T *volatile> {
+        using type = typename add_deep_const<T>::type *const volatile;
+    };
+    template <typename T>
+    struct add_deep_const<T *const volatile> {
+        using type = typename add_deep_const<T>::type *const volatile;
+    };
+    template <typename T>
+    struct add_deep_const<T &> {
+        using type = typename add_deep_const<T>::type &;
+    };
+    template <typename T>
+    struct add_deep_const<T &&> {
+        using type = typename add_deep_const<T>::type &&;
+    };
+
+    // ----- Remove deep const
+    template <typename T>
+    struct remove_deep_const {
+        using type = typename remove_const<T>::type;
+    };
+    template <typename T>
+    struct remove_deep_const<T *> {
+        using type = typename remove_deep_const<T>::type *;
+    };
+    template <typename T>
+    struct remove_deep_const<T *const> {
+        using type = typename remove_deep_const<T>::type *;
+    };
+    template <typename T>
+    struct remove_deep_const<T *volatile> {
+        using type = typename remove_deep_const<T>::type *volatile;
+    };
+    template <typename T>
+    struct remove_deep_const<T *const volatile> {
+        using type = typename remove_deep_const<T>::type *volatile;
+    };
+    template <typename T>
+    struct remove_deep_const<T &> {
+        using type = typename remove_deep_const<T>::type &;
+    };
+    template <typename T>
+    struct remove_deep_const<T &&> {
+        using type = typename remove_deep_const<T>::type &&;
+    };
+
+    // ----- Copy constness from From onto To
+    template <typename From, typename To>
+    struct copy_const {
+        using type = typename remove_const<To>::type;
+    };
+    template <typename From, typename To>
+    struct copy_const<const From, To> {
+        using type = typename add_const<To>::type;
+    };
+
+    // ----- Conditional const
+    template <bool Cond, typename T>
+    struct add_const_if {
+        using type = T;
+    };
+    template <typename T>
+    struct add_const_if<true, T> {
+        using type = const T;
+    };
+
     // ----- Remove volatile
     template <typename T>
     struct remove_volatile {
@@ -228,9 +396,29 @@ namespace hp {
 
     // ----- Aliases
     template <typename T>
+    inline constexpr bool is_const_v = is_const<T>::value;
+    template <typename T>
     using remove_const_t = typename remove_const<T>::type;
     template <typename T>
     using add_const_t = typename add_const<T>::type;
+    template <typename T>
+    using add_past_const_t = typename add_past_const<T>::type;
+    template <typename T>
+    using add_const_under_ref_t = typename add_const_under_ref<T>::type;
+    template <typename T>
+    using remove_const_under_ref_t = typename remove_const_under_ref<T>::type;
+    template <typename T>
+    using add_pointer_const_t = typename add_pointer_const<T>::type;
+    template <typename T>
+    using remove_pointer_const_t = typename remove_pointer_const<T>::type;
+    template <typename T>
+    using add_deep_const_t = typename add_deep_const<T>::type;
+    template <typename T>
+    using remove_deep_const_t = typename remove_deep_const<T>::type;
+    template <typename From, typename To>
+    using copy_const_t = typename copy_const<From, To>::type;
+    template <bool Cond, typename T>
+    using add_const_if_t = typename add_const_if<Cond, T>::type;
     template <typename T>
     using remove_volatile_t = typename remove_volatile<T>::type;
     template <typename T>
