@@ -64,7 +64,7 @@ class Random {
     template <typename T>
         requires std::is_enum_v<T>
     [[nodiscard]] static T randomValue() {
-        static constexpr auto values = get_enumerators<T>();
+        static constexpr auto values = hp::meta::get_enumerators<T>();
         static_assert(!values.empty(), "Cannot pick a random value from an empty enum!");
         return values[rand<std::size_t>(0, values.size() - 1)];
     }
