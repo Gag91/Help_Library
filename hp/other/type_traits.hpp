@@ -3,6 +3,7 @@
 #include <map>
 #include <memory>
 #include <optional>
+#include <sys/stat.h>
 #include <type_traits>
 #include <utility>
 #include <vector>
@@ -394,9 +395,27 @@ namespace hp {
         using type = typename remove_all_extents<T>::type;
     };
 
+    // ----- Is same
+    template <typename T, typename U>
+    struct is_same : std::false_type {};
+    template <typename T>
+    struct is_same<T, T> : std::true_type {};
+
+    // ----- Is convertible
+    template <typename From, typename To>
+    struct is_convertible : std::false_type {};
+    template <typename From, typename To>
+        requires requires { static_cast<To>(std::declval<From>()); }
+    struct is_convertible<From, To> : std::true_type {};
+
     // ----- Aliases
+    template <typename T, typename U>
+    inline constexpr bool is_convertible_v = is_convertible<T, U>::value;
+    template <typename T, typename U>
+    inline constexpr bool is_same_v = is_same<T, U>::value;
     template <typename T>
     inline constexpr bool is_const_v = is_const<T>::value;
+
     template <typename T>
     using remove_const_t = typename remove_const<T>::type;
     template <typename T>
