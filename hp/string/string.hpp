@@ -1,6 +1,7 @@
 #pragma once
 
 #include "hp/concepts/concept.hpp"
+#include "hp/other/integers.hpp"
 #include "hp/other/type_traits.hpp"
 
 #include <algorithm>
@@ -208,9 +209,64 @@ namespace hp {
             }
         }
 
+        // ----- constexpr to string for integers
+        template <std::integral T>
+        [[nodiscard]] constexpr std::string int_to_string(T val) {
+            constexpr std::size_t buf_size = std::numeric_limits<T>::digits10 + 3;
+            char buf[buf_size];
+            const auto [ptr, ec] = std::to_chars(buf, buf + buf_size, val);
+            return std::string(buf, ptr);
+        }
+
+        // ----- constexpr to string for floating points
+        template <std::floating_point T>
+        [[nodiscard]] constexpr std::string float_to_string(T val) {
+            if consteval {
+                if (val == 0) {
+                    return "0";
+                }
+
+                std::string res;
+                if (val < 0) {
+                    res += '-';
+                    val = -val;
+                }
+                auto int_part = static_cast<unsigned long long>(val);
+                T frac = val - static_cast<T>(int_part);
+
+                if (int_part == 0) {
+                    res += '0';
+                } else {
+                    std::string digits;
+                    while (int_part > 0) {
+                        digits += static_cast<char>('0' + (int_part % 10));
+                        int_part /= 10;
+                    }
+                    for (std::size_t i = digits.size(); i > 0; --i) {
+                        res += digits[i - 1];
+                    }
+                }
+
+                if (frac > 0) {
+                    res += '.';
+                    for (int i = 0; i < 6 && frac > static_cast<T>(1e-7); ++i) {
+                        frac *= 10;
+                        int digit = static_cast<int>(frac);
+                        res += static_cast<char>('0' + digit);
+                        frac -= digit;
+                    }
+                }
+                return res;
+            } else {
+                std::array<char, 64> buf{};
+                const auto [ptr, ec] = std::to_chars(buf.data(), buf.data() + buf.size(), val);
+                return std::string(buf.data(), ptr);
+            }
+        }
+
         // ----- T to String
         template <typename T>
-        std::string to_string(const T &value) {
+        [[nodiscard]] constexpr std::string to_string(const T &value) {
             using DecayedT = std::remove_cvref_t<T>;
 
             if constexpr (std::is_same_v<DecayedT, std::string>) {
@@ -236,10 +292,10 @@ namespace hp {
                 return hp::detail::char32_to_utf8(value);
             } else if constexpr (std::is_same_v<DecayedT, bool>) {
                 return value ? "true" : "false";
-            } else if constexpr (hp::any_of<DecayedT, short, int, long, long long, unsigned short,
-                                            unsigned int, unsigned long, unsigned long long,
-                                            float, double, long double>()) {
-                return std::to_string(value);
+            } else if constexpr (std::is_integral_v<DecayedT>) {
+                return int_to_string(value);
+            } else if constexpr (std::is_floating_point_v<DecayedT>) {
+                return float_to_string(value);
             } else if constexpr (std::is_enum_v<DecayedT>) {
                 static constexpr auto enums = std::define_static_array(std::meta::enumerators_of(^^DecayedT));
                 template for (constexpr auto &e : enums) {
@@ -247,7 +303,7 @@ namespace hp {
                         return std::string(std::meta::identifier_of(e));
                     }
                 }
-                return std::to_string(static_cast<std::underlying_type_t<DecayedT>>(value));
+                return int_to_string(static_cast<std::underlying_type_t<DecayedT>>(value));
             } else if constexpr (hp::is_weak_ptr_v<DecayedT>) {
                 auto locked = value.lock();
                 if (locked == nullptr)

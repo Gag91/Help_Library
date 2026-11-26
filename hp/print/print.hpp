@@ -100,7 +100,7 @@ namespace hp {
 
     // ----- Format String
     template <typename... Args>
-    std::string format(hp::detail::format_string<Args...> fmt, const Args &...args) {
+    constexpr std::string format(hp::detail::format_string<Args...> fmt, const Args &...args) {
         std::string_view value = fmt.str;
         std::vector<std::string> arguments;
         arguments.reserve(sizeof...(Args));
@@ -143,15 +143,20 @@ namespace hp {
                 }
 
                 if (j < value.size() && value[j] == '}' && argument < arguments.size()) {
-                    const std::string &arg_str = arguments[argument++];
-                    try {
-                        double val = std::stod(arg_str);
-                        std::ostringstream oss;
-                        oss << std::fixed << std::setprecision(prec) << val;
-                        result += oss.str();
-                    } catch (...) {
-                        result += arg_str;
+                    std::string arg_str = arguments[argument++];
+                    std::size_t dot = arg_str.find('.');
+
+                    if (prec == 0) {
+                        if (dot != std::string::npos)
+                            arg_str.resize(dot);
+                    } else if (dot == std::string::npos) {
+                        arg_str += '.';
+                        arg_str.append(prec, '0');
+                    } else {
+                        arg_str.resize(dot + 1 + prec, '0');
                     }
+
+                    result += arg_str;
                     i = j;
                     continue;
                 }
