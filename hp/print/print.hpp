@@ -222,4 +222,14 @@ namespace hp {
         std::cout << hp::format(fmt, args...) << '\n';
     }
 
+    // ----- Print nothing
+    void print() {
+        std::cout << "";
+    }
+
+    // ----- Print a blankline
+    void println() {
+        std::cout << '\n';
+    }
+
 } // namespace hp
