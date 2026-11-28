@@ -1,9 +1,11 @@
 #pragma once
 
+#include <algorithm>
 #include <array>
 #include <charconv>
 #include <concepts>
 #include <cstddef>
+#include <format>
 #include <stdexcept>
 #include <string>
 #include <type_traits>
@@ -123,6 +125,27 @@ namespace hp {
                 }
                 return val;
             }
+        }
+    }
+
+    // ----- Reverse number
+    template <typename T>
+        requires std::integral<T> || std::floating_point<T>
+    constexpr T reverse_number(T n) {
+        if constexpr (std::floating_point<T>) {
+            std::string num = std::format("{}", n);
+
+            auto start = num.starts_with('-') ? num.begin() + 1 : num.begin();
+            std::ranges::reverse(start, num.end());
+
+            return static_cast<T>(std::stod(num));
+        } else {
+            T reversedNum = 0;
+            while (n != 0) {
+                reversedNum = reversedNum * 10 + (n % 10);
+                n /= 10;
+            }
+            return reversedNum;
         }
     }
 
