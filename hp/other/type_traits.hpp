@@ -10,6 +10,27 @@
 
 namespace hp {
 
+    template <typename T, T v>
+    struct integral_constant {
+        static constexpr T value = v;
+
+        using value_type = T;
+        using type = integral_constant;
+
+        constexpr operator value_type() const noexcept {
+            return value;
+        }
+        constexpr value_type operator()() const noexcept {
+            return value;
+        }
+    };
+
+    template <bool B>
+    using bool_constant = integral_constant<bool, B>;
+
+    using true_type = integral_constant<bool, true>;
+    using false_type = integral_constant<bool, false>;
+
     // ----- Conditional
     template <bool Predicate, typename True, typename False>
     struct conditional {
@@ -23,7 +44,7 @@ namespace hp {
 
     // ----- Conjunction
     template <typename...>
-    struct conjunction : std::true_type {};
+    struct conjunction : true_type {};
 
     template <typename T>
     struct conjunction<T> : T {};
@@ -33,7 +54,7 @@ namespace hp {
 
     // ----- Disjunction
     template <typename...>
-    struct disjunction : std::false_type {};
+    struct disjunction : false_type {};
 
     template <typename T>
     struct disjunction<T> : T {};
@@ -45,69 +66,75 @@ namespace hp {
     template <typename T>
     struct negation : std::integral_constant<bool, !bool(T::value)> {};
 
+    // ----- Type identity
+    template <typename T>
+    struct type_identity {
+        using type = T;
+    };
+
     // ----- Is Smart Pointer
     template <typename T>
-    struct is_smart_pointer : std::false_type {};
+    struct is_smart_pointer : false_type {};
     template <typename T>
-    struct is_smart_pointer<std::unique_ptr<T>> : std::true_type {};
+    struct is_smart_pointer<std::unique_ptr<T>> : true_type {};
     template <typename T>
-    struct is_smart_pointer<std::shared_ptr<T>> : std::true_type {};
+    struct is_smart_pointer<std::shared_ptr<T>> : true_type {};
     template <typename T>
     inline constexpr bool is_smart_pointer_v = is_smart_pointer<T>::value;
 
     // ----- Is Unique Pointer
     template <typename>
-    struct is_unique_ptr : std::false_type {};
+    struct is_unique_ptr : false_type {};
     template <typename T>
-    struct is_unique_ptr<std::unique_ptr<T>> : std::true_type {};
+    struct is_unique_ptr<std::unique_ptr<T>> : true_type {};
     template <typename T>
     inline constexpr bool is_unique_ptr_v = is_unique_ptr<T>::value;
 
     // ----- Is Shared Pointer
     template <typename>
-    struct is_shared_ptr : std::false_type {};
+    struct is_shared_ptr : false_type {};
     template <typename T>
-    struct is_shared_ptr<std::shared_ptr<T>> : std::true_type {};
+    struct is_shared_ptr<std::shared_ptr<T>> : true_type {};
     template <typename T>
     inline constexpr bool is_shared_ptr_v = is_shared_ptr<T>::value;
 
     // ----- Is Weak Pointer
     template <typename>
-    struct is_weak_ptr : std::false_type {};
+    struct is_weak_ptr : false_type {};
     template <typename T>
-    struct is_weak_ptr<std::weak_ptr<T>> : std::true_type {};
+    struct is_weak_ptr<std::weak_ptr<T>> : true_type {};
     template <typename T>
     inline constexpr bool is_weak_ptr_v = is_weak_ptr<T>::value;
 
     // ----- Is Vector
     template <typename>
-    struct is_vector : std::false_type {};
+    struct is_vector : false_type {};
     template <typename U>
-    struct is_vector<std::vector<U>> : std::true_type {};
+    struct is_vector<std::vector<U>> : true_type {};
     template <typename T>
     inline constexpr bool is_vector_v = is_vector<T>::value;
 
     // ----- Is Map
     template <typename>
-    struct is_map : std::false_type {};
+    struct is_map : false_type {};
     template <typename T, typename U>
-    struct is_map<std::map<T, U>> : std::true_type {};
+    struct is_map<std::map<T, U>> : true_type {};
     template <typename T>
     inline constexpr bool is_map_v = is_map<T>::value;
 
     // ----- Is Optional
     template <typename>
-    struct is_optional : std::false_type {};
+    struct is_optional : false_type {};
     template <typename U>
-    struct is_optional<std::optional<U>> : std::true_type {};
+    struct is_optional<std::optional<U>> : true_type {};
     template <typename T>
     inline constexpr bool is_optional_v = is_optional<T>::value;
 
     // ----- Is Pair
     template <typename>
-    struct is_pair : std::false_type {};
+    struct is_pair : false_type {};
     template <typename T, typename U>
-    struct is_pair<std::pair<T, U>> : std::true_type {};
+    struct is_pair<std::pair<T, U>> : true_type {};
     template <typename T>
     inline constexpr bool is_pair_v = is_pair<T>::value;
 
@@ -432,16 +459,16 @@ namespace hp {
 
     // ----- Is same
     template <typename T, typename U>
-    struct is_same : std::false_type {};
+    struct is_same : false_type {};
     template <typename T>
-    struct is_same<T, T> : std::true_type {};
+    struct is_same<T, T> : true_type {};
 
     // ----- Is convertible
     template <typename From, typename To>
-    struct is_convertible : std::false_type {};
+    struct is_convertible : false_type {};
     template <typename From, typename To>
         requires requires { static_cast<To>(std::declval<From>()); }
-    struct is_convertible<From, To> : std::true_type {};
+    struct is_convertible<From, To> : true_type {};
 
     // ----- Aliases
     template <typename T, typename U>
@@ -459,6 +486,8 @@ namespace hp {
 
     template <bool Predicate, typename T, typename U>
     using conditional_t = typename conditional<Predicate, T, U>::type;
+    template <typename T>
+    using type_identity_t = typename type_identity<T>::type;
     template <typename T>
     using remove_const_t = typename remove_const<T>::type;
     template <typename T>
