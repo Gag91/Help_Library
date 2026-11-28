@@ -10,6 +10,41 @@
 
 namespace hp {
 
+    // ----- Conditional
+    template <bool Predicate, typename True, typename False>
+    struct conditional {
+        using type = True;
+    };
+
+    template <typename True, typename False>
+    struct conditional<false, True, False> {
+        using type = False;
+    };
+
+    // ----- Conjunction
+    template <typename...>
+    struct conjunction : std::true_type {};
+
+    template <typename T>
+    struct conjunction<T> : T {};
+
+    template <typename T, typename... Args>
+    struct conjunction<T, Args...> : hp::conditional<bool(T::value), conjunction<Args...>, T> {};
+
+    // ----- Disjunction
+    template <typename...>
+    struct disjunction : std::false_type {};
+
+    template <typename T>
+    struct disjunction<T> : T {};
+
+    template <typename T, typename... Args>
+    struct disjunction<T, Args...> : hp::conditional<bool(T::value), T, disjunction<Args...>> {};
+
+    // ----- Negation
+    template <typename T>
+    struct negation : std::integral_constant<bool, !bool(T::value)> {};
+
     // ----- Is Smart Pointer
     template <typename T>
     struct is_smart_pointer : std::false_type {};
@@ -415,7 +450,15 @@ namespace hp {
     inline constexpr bool is_same_v = is_same<T, U>::value;
     template <typename T>
     inline constexpr bool is_const_v = is_const<T>::value;
+    template <typename... Args>
+    inline constexpr bool conjunction_v = conjunction<Args...>::value;
+    template <typename... Args>
+    inline constexpr bool disjunction_v = disjunction<Args...>::value;
+    template <typename T>
+    inline constexpr bool negation_v = negation<T>::value;
 
+    template <bool Predicate, typename T, typename U>
+    using conditional_t = typename conditional<Predicate, T, U>::type;
     template <typename T>
     using remove_const_t = typename remove_const<T>::type;
     template <typename T>
